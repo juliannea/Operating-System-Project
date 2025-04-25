@@ -1,5 +1,8 @@
 //Julianne Aguilar 
+#include <iostream>
 #include <vector>
+#include <algorithm>
+
 #pragma once
 class Memory{
   public:
@@ -17,11 +20,13 @@ class Memory{
     
     using MemoryUse = std::vector<MemoryItem>; //processes appear in the same order they appear in memory (low address to high)
  
-    
+    void addToMemory(MemoryItem memoryBlock);
 
 
 
+    //Getters for testing 
 
+    void getMemoryBlocks();
 
   private:
     unsigned long long amountOfRam_;

@@ -27,7 +27,8 @@ class SimOS{
     */
     bool NewProcess(unsigned long long size, int priority);
 
-
+    //getters for testing 
+    const void getMemoryBlocks();
     private:
       unsigned long long sizeOfOS_;
       int pid = 1;

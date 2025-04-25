@@ -12,8 +12,21 @@
   sizeOfOS_ = sizeOfOS;
   RAM_.setMemAmount(amountOfRAM);
 
-  //now we have to add the OS process to RAM b/c it take memory space and has an address in the begining of memory
+  //add the memory amount to the memoryblock vector
+  Memory::MemoryItem newItem{
+    0, //address
+    amountOfRAM, //size of start block (nothing in it yet)
+    NO_PROCESS //no process 
+  };
+  RAM_.addToMemory(newItem);
 
+  //now we have to add the OS process to RAM b/c it take memory space and has an address in the begining of memory
+  Memory::MemoryItem OS{
+    0, //address
+    sizeOfOS, 
+    0, //PID
+  };
+  RAM_.addToMemory(OS);
 
  }
 
@@ -27,3 +40,6 @@
    
   }
 
+  const void SimOS::getMemoryBlocks(){
+    RAM_.getMemoryBlocks();
+  }
