@@ -14,6 +14,7 @@ class Process{
     */
     Process(int pid = -1, int priority = -1, unsigned long long size = -1, unsigned long long address = -1, int parentPID = -1);
 
+    void addChild(Process childProcess);
     //setters
     void setPID(int pid);
 
@@ -24,8 +25,6 @@ class Process{
     void setAddress(unsigned long long address);
 
     void setParentPID(int parentPID);
-
-    void addChild(Process childProcess);
 
     //getters
     int getPID() const;
@@ -38,6 +37,7 @@ class Process{
 
     int getParentPID() const;
 
+
     std::vector<Process> getChildPIDs() const;
 
   private:
@@ -47,7 +47,5 @@ class Process{
     unsigned long long address_;
     int parentPID_ = -1;
     std::vector<Process> children;
-    bool wait_;
-    bool zombie_;
-    bool terminated_;
+   
 };

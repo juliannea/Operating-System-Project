@@ -68,6 +68,7 @@
     else{
       readyQueue.push_back(newProcess);
     }
+    sort();
     return true;
   }
 
@@ -92,6 +93,7 @@
     //create child process 
     Process childProcess(childPID, processRunning_.getPriority(), processRunning_.getSize(), RAM_.getAddress(childPID), processRunning_.getPID());
     readyQueue.push_back(childProcess);
+    sort();
 
     //add child process to parents childPIDs queue
     processRunning_.addChild(childProcess);
@@ -100,9 +102,29 @@
   }
 
   void SimOS::SimExit(){
-  
+    //check if have parent
+
   }
 
+  void SimOS::sort(){
+    for(int i = 1; i < readyQueue.size(); i++){
+      int j = i - 1;
+      while (j >= 0 and readyQueue[j + 1].getPriority() > readyQueue[j].getPriority()){
+        Process temp;
+        temp.setPID(readyQueue[j+1].getPID());
+        temp.setPriority(readyQueue[j+1].getPriority());
+        temp.setSize(readyQueue[j + 1].getSize());
+        temp.setAddress(readyQueue[j+1].getAddress());
+        temp.setParentPID(readyQueue[j+1].getParentPID());
+        
+        readyQueue[j + 1] = readyQueue[j];
+        readyQueue[j] = temp;
+        j -= 1;
+      
+      }
+
+    }
+  }
   //getters
   int SimOS::getProcessRunningPriority() const{
     return processRunning_.getPriority();
@@ -137,7 +159,8 @@
     for (const auto& process : readyQueue) {
       std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
                 << " priority: " << process.getPriority()
-                << " address " << process.getAddress() << std::endl;
+                << " address " << process.getAddress() 
+                <<  " parent PID: " << process.getParentPID() << std::endl;
       i++;
     }
   }

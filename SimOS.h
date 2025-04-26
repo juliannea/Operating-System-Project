@@ -31,6 +31,7 @@ class SimOS{
 
     void SimExit();
 
+    void sort();
     //getters 
     int getProcessRunningPriority() const;
 
@@ -50,6 +51,8 @@ class SimOS{
 
       int pidTracker_ = 1; //keep track of PID's used so know PID to assign to new process
       std::vector<Process> readyQueue;
+      std::vector<Process> waitingProcesses;
+      std::vector<Process> zombieProcesses;
 
       Process processRunning_ = Process(0,0,0,0);  //process currently using CPU 
       Memory RAM_; //represents RAM

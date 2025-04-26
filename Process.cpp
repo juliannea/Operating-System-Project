@@ -16,9 +16,11 @@ Process::Process(int pid, int priority, unsigned long long size , unsigned long 
   size_ = size;
   address_ = address;
   parentPID_ = parentPID;
-  wait_ = false;
-  zombie_ = false;
-  terminated_ = false;
+
+}
+
+void Process::addChild(Process childProcess){
+  children.push_back(childProcess);
 }
 
 //setters
@@ -40,10 +42,6 @@ void Process::setAddress(unsigned long long address){
 
 void Process::setParentPID(int parentPID){
   parentPID_ = parentPID;
-}
-
-void Process::addChild(Process childProcess){
-  children.push_back(childProcess);
 }
 
 //getters
@@ -75,3 +73,4 @@ std::vector<Process> Process::getChildPIDs() const
 {
   return children;
 }
+
