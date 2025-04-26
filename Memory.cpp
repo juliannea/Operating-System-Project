@@ -44,11 +44,12 @@ bool Memory::addToMemory(MemoryItem memoryBlock){
     }
     
     //check if can fit memory block in the largest free memory, then add it 
-    if(memoryBlock.itemSize <+ memoryBlocks_[maxIndex].itemSize){
+    if(memoryBlock.itemSize <= memoryBlocks_[maxIndex].itemSize){
       memoryBlock.itemAddress = maxIndex; 
       memoryBlocks_.insert(memoryBlocks_.begin() + maxIndex, memoryBlock);
       memoryBlocks_[maxIndex + 1].itemSize = memoryBlocks_[maxIndex + 1].itemSize - memoryBlock.itemSize;
       memoryBlocks_[maxIndex + 1].itemAddress = maxIndex + 1;
+ 
       return true;
     }
    

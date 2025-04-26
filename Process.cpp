@@ -40,7 +40,7 @@ void Process::setParentPID(int parentPID){
 }
 
 void Process::addChild(Process childProcess){
-  childPIDs.push_back(childProcess);
+  children.push_back(childProcess);
 }
 
 //getters
@@ -62,4 +62,13 @@ unsigned long long Process::getSize() const
 unsigned long long Process::getAddress() const
 {
   return address_;
+}
+
+int Process::getParentPID() const{
+  return parentPID_;
+}
+
+std::vector<Process> Process::getChildPIDs() const
+{
+  return children;
 }

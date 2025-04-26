@@ -36,11 +36,15 @@ class Process{
 
     unsigned long long getAddress() const;
 
+    int getParentPID() const;
+
+    std::vector<Process> getChildPIDs() const;
+
   private:
     int pid_;
     int priority_;
     unsigned long long size_;
     unsigned long long address_;
     int parentPID_ = -1;
-    std::vector<Process> childPIDs;
+    std::vector<Process> children;
 };

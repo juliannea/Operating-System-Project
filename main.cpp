@@ -13,7 +13,7 @@ int main(){
   std::cout <<"----------------------------------\n";
   std::cout <<"SimOS NewProcess test\n";
   std::cout<< "trying to add 3000 should be false: " << std::boolalpha << testOS.NewProcess(30000, 5) << "\n";
-  std::cout<< "trying to add 500 should be true: " << std::boolalpha << testOS.NewProcess(500, 5) << "\n";
+  std::cout<< "trying to add 500 should be true: " << std::boolalpha << testOS.NewProcess(500, 7) << "\n";
   std::cout<< "trying to add 24 should be true: " << std::boolalpha << testOS.NewProcess(24, 6) << "\n";
 
   std::cout << "memory blocks: " << "\n";
@@ -24,6 +24,25 @@ int main(){
   std::cout << "-------\n";
   std::cout << "Display Ready Queue\n";
   testOS.displayReadyQueue();
+
+
+  
+  std::cout <<"----------------------------------\n";
+  std::cout <<"SimOS Fork() test\n";
+  std::cout << "should be True: " << std::boolalpha << testOS.SimFork() << "\n";
+  std::cout << "-------\n\n";
+  testOS.displayRunningProcess();
+
+  std::cout << "-------\n\n";
+  std::cout << "Display Ready Queue\n";
+  testOS.displayReadyQueue();
+
+ 
+  std::cout << "-------\n\n";
+  std::cout << "memory blocks: " << "\n";
+  testOS.displayMemoryBlocks();
+
+  
 
  
 

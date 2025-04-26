@@ -30,12 +30,16 @@ class SimOS{
     //forks currently running process 
     bool SimFork();
 
+    //getters 
+    int getProcessRunningPriority() const;
+
     //displays for testing 
     const void displayMemoryBlocks();
 
     void displayRunningProcess() const;
 
     void displayReadyQueue() const;
+
     private:
       unsigned long long sizeOfOS_;
       int pid_ = 1;
@@ -46,7 +50,7 @@ class SimOS{
       int pidTracker_ = 1; //keep track of PID's used so know PID to assign to new process
       std::vector<Process> readyQueue;
 
-      Process processRunning_;  //process currently using CPU 
+      Process processRunning_ = Process(0,0,0,0);  //process currently using CPU 
       Memory RAM_; //represents RAM
 
 };

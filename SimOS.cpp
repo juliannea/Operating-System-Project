@@ -73,11 +73,34 @@
 
   bool SimOS::SimFork()
   {
-    //check that its not OS
-    if(processRunning_.getPID() == 1){
+    //check that its not OS and can fit in memory 
+    if(processRunning_.getPID() == 1 || !RAM_.canAdd(processRunning_.getSize())){
       return false; 
     }
-    bool ans =  NewProcess(processRunning_.getSize(), processRunning_.getPriority());
+    //create child process: priority & size inherited from parent, PID different place in memory different
+    pidTracker_ += 1;
+    int childPID = pidTracker_;
+
+    //create memory block for child process 
+    Memory::MemoryItem childMem{
+      0, //default address, real addr is set when added 
+      processRunning_.getSize(),
+      childPID
+    };
+    RAM_.addToMemory(childMem);
+
+    //create child process 
+    Process childProcess(childPID, processRunning_.getPriority(), processRunning_.getSize(), RAM_.getAddress(childPID), processRunning_.getPID());
+    readyQueue.push_back(childProcess);
+
+    //add child process to parents childPIDs queue
+    processRunning_.addChild(childProcess);
+
+    return true;
+  }
+
+  int SimOS::getProcessRunningPriority() const{
+    return processRunning_.getPriority();
   }
 
   //Displays for testing
@@ -87,7 +110,21 @@
 
   void SimOS::displayRunningProcess() const
   {
-    std::cout<<"Running Process: \n" << "PID: " << processRunning_.getPID() << "\nsize: " << processRunning_.getSize() << "\naddress: " << processRunning_.getAddress() << "\npriority: " << processRunning_.getPriority() << "\n";
+    std::cout<<"Running Process: \n";
+    std::cout << "PID: " << processRunning_.getPID();
+    std::cout << " Priority: " << processRunning_.getPriority();
+    std::cout << " Size: " << processRunning_.getSize();
+    std::cout << " Address: " << processRunning_.getAddress();
+    std::cout << " Parent PID: " << processRunning_.getParentPID() << "\n \n";
+    std::cout <<"Children if have any: \n";
+    int i = 0;
+    for (const auto& process : processRunning_.getChildPIDs()) {
+      std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
+                << " priority: " << process.getPriority()
+                << " address: " << process.getAddress() 
+                << " parent PID: "<< process.getParentPID() <<std::endl;
+      i++;
+    }
   }
 
   void SimOS::displayReadyQueue() const{
