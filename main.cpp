@@ -41,6 +41,61 @@ int main(){
   std::cout << "-------\n\n";
   std::cout << "memory blocks: " << "\n";
   testOS.displayMemoryBlocks();
+  std::cout <<"----------------------------------\n";
+  std::cout <<"SimOS Exit() and Wait() test\n";
+  
+  /*
+  testOS.SimWait();
+  std::cout << "Case for Parent is terminated PID 2 and child PID 4 should be terminated\n";
+  testOS.displayRunningProcess();
+  testOS.displayReadyQueue();
+  testOS.displayMemoryBlocks();
+  testOS.displayZombies();
+  testOS.displayWaiting();
+  */
+  
+  /*
+  std::cout << "Child exits before parent calls wait\n";
+  testOS.setProcessRunning(Process(4, 7, 500, 3, 2));
+  testOS.displayRunningProcess();
+  std::cout << "\n----------------\n";
+  std::cout << "Child calls exit test, child should turn to zombie, next process in ready queue goes\n";
+  testOS.SimExit();
+  testOS.displayRunningProcess();
+  testOS.displayReadyQueue();
+  testOS.displayMemoryBlocks();
+  testOS.displayWaiting();
+  testOS.displayZombies();
+  std::cout << "\n----------------\n";
+  std::cout << "Parent calls wait, but child is the zombie so parent continues and zombie child terminates\n";
+  Process testP(2, 7, 500, 3, -1);
+  testP.addChild(Process(4,7,500,3,2));
+  testOS.setProcessRunning(testP);
+
+  testOS.SimWait();
+  testOS.displayRunningProcess();
+  testOS.displayReadyQueue();
+  testOS.displayMemoryBlocks();
+  testOS.displayWaiting();
+  testOS.displayZombies();
+  */
+ std::cout << "Case parent is waiting so child terminates and nothing in waiting and process queue after\n\n";
+
+ std::cout << "Parent waits test, parent in waring queue and next in ready queue enters: \n";
+ testOS.SimWait();
+ testOS.displayRunningProcess();
+ testOS.displayReadyQueue();
+ testOS.displayMemoryBlocks();
+ testOS.displayWaiting();
+ testOS.displayZombies();
+ std::cout << "-----------------------\n\n";
+ std::cout << "After parent is set to wait, its child runs and then exit test. Child should terminate from memory\n";
+ testOS.SimExit();
+ testOS.displayRunningProcess();
+ testOS.displayReadyQueue();
+ testOS.displayMemoryBlocks();
+ testOS.displayWaiting();
+ testOS.displayZombies();
 
   /*
   std::cout <<"----------------------------------\n";

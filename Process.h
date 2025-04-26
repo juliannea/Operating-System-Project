@@ -38,7 +38,7 @@ class Process{
     int getParentPID() const;
 
 
-    std::vector<Process> getChildPIDs() const;
+    std::vector<Process> getChildren() const;
 
   private:
     int pid_;

@@ -102,10 +102,112 @@
   }
 
   void SimOS::SimExit(){
-    //check if have parent
+    //check if the parent is waiting or if it has no parent, no parent means no worries about zombie 
+    if(processRunning_.getPID() != 1){
+      int parentPID = processRunning_.getParentPID();
+      bool parentWaiting = false;
+      int waitingIndex;
 
+      for(int i = 0; i < waitingProcesses.size(); i++){
+        if(waitingProcesses[i].getPID() == parentPID){
+          parentWaiting = true;
+          waitingIndex = i;
+        }
+      }
+
+      //if parent is waiting, current process terminates and parent "goes" to ready queue or CPU 
+      if(parentWaiting){
+        //move parent to ready queue
+        readyQueue.push_back(waitingProcesses[waitingIndex]);
+        sort(); //sort ready queue 
+
+        //remove parent process from waitingProcess queue 
+        waitingProcesses.erase(waitingProcesses.begin() + waitingIndex);
+
+      }
+      //case turns into zombie process
+      else if(!parentWaiting && processRunning_.getParentPID() != -1){
+        zombieProcesses.push_back(processRunning_);
+      }
+
+       //remove process from memory only if not a zombie process 
+      if(parentWaiting || processRunning_.getParentPID() == -1){
+        RAM_.removeMemoryItem(processRunning_.getPID());
+
+        //terminate all its descendants as well, remove all its children from memory and the ready queue
+        std::vector<Process> parentsChildren = processRunning_.getChildren();
+        for(int i = 0; i < parentsChildren.size(); i++){
+          //remove from memory 
+          RAM_.removeMemoryItem(parentsChildren[i].getPID());
+          //remove from ready queue 
+          for(int j = readyQueue.size() -1; j >= 0; j--){
+            if(readyQueue[j].getPID() == parentsChildren[i].getPID()){
+              readyQueue.erase(readyQueue.begin() + j);
+            }
+          }
+        }   
+
+      }
+ 
+      //just for testing purposes comment out later
+      //readyQueue.erase(readyQueue.begin());
+
+       //new process in CPU 
+       if(!readyQueue.empty()){
+        processRunning_ = readyQueue[0];
+        readyQueue.erase(readyQueue.begin());
+       }
+       else{
+        processRunning_ = Process(0,0,0,0);
+       }
+       
+
+    }
+    
   }
 
+  void SimOS::SimWait(){
+    //currently running process enters waiting queue if there's no zombie child 
+    //check if has zombie child, check if PID = 1 means OS, if those conditions don't pass then enters waiting queue 
+    //if wait is over - child terminates, the process foes to end of ready queue or CPU - this is handled in the Exit function 
+
+    if(processRunning_.getPID() != 1 && !processRunning_.getChildren().empty()){ //makes sure process has children
+      bool hasZombie = false;
+      int zombieIndex;
+
+      for(int i = 0; i < zombieProcesses.size(); i++){
+        if(zombieProcesses[i].getParentPID() == processRunning_.getPID()){
+         hasZombie = true;
+         zombieIndex = i;
+        }
+      }
+          
+      if(hasZombie){
+        //removce zombie from memory 
+        RAM_.removeMemoryItem(zombieProcesses[zombieIndex].getPID());
+        //zombie child disappears 
+        zombieProcesses.erase(zombieProcesses.begin() + zombieIndex);
+      }
+      else{
+        //no zombie so process pauses(yields the CPU) and enters waiting queue 
+        waitingProcesses.push_back(processRunning_);
+        if(!readyQueue.empty()){
+          processRunning_ = readyQueue[0];
+          readyQueue.erase(readyQueue.begin());
+        }
+        else{
+          processRunning_ = Process(0,0,0,0);
+        }
+
+      }
+       
+    }
+    
+    
+
+    
+
+  }
   void SimOS::sort(){
     for(int i = 1; i < readyQueue.size(); i++){
       int j = i - 1;
@@ -130,6 +232,10 @@
     return processRunning_.getPriority();
   }
 
+  void SimOS::setProcessRunning(Process processRunning){
+    processRunning_ = processRunning;
+  }
+
   //Displays for testing
   const void SimOS::displayMemoryBlocks(){
     RAM_.displayMemoryBlocks();
@@ -145,16 +251,18 @@
     std::cout << " Parent PID: " << processRunning_.getParentPID() << "\n \n";
     std::cout <<"Children if have any: \n";
     int i = 0;
-    for (const auto& process : processRunning_.getChildPIDs()) {
+    for (const auto& process : processRunning_.getChildren()) {
       std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
                 << " priority: " << process.getPriority()
                 << " address: " << process.getAddress() 
                 << " parent PID: "<< process.getParentPID() <<std::endl;
       i++;
     }
+    std::cout << "\n\n";
   }
 
   void SimOS::displayReadyQueue() const{
+    std::cout << "Displaying Ready Queue\n";
     int i = 0;
     for (const auto& process : readyQueue) {
       std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
@@ -163,4 +271,31 @@
                 <<  " parent PID: " << process.getParentPID() << std::endl;
       i++;
     }
+    std::cout << "\n\n";
+  }
+
+  void SimOS::displayWaiting() const{
+    std::cout << "Displaying Waiting Proccesses Queue\n";
+    int i = 0;
+    for (const auto& process : waitingProcesses) {
+      std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
+                << " priority: " << process.getPriority()
+                << " address " << process.getAddress() 
+                <<  " parent PID: " << process.getParentPID() << std::endl;
+      i++;
+    }
+    std::cout << "\n\n";
+  }
+
+  void SimOS::displayZombies() const{
+    std::cout << "Displaying Zombies Queue\n";
+    int i = 0;
+    for (const auto& process : zombieProcesses) {
+      std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
+                << " priority: " << process.getPriority()
+                << " address " << process.getAddress() 
+                <<  " parent PID: " << process.getParentPID() << std::endl;
+      i++;
+    }
+    std::cout << "\n\n";
   }

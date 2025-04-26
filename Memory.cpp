@@ -123,7 +123,7 @@ void Memory::setMemAmount(unsigned long long amountOfRam){
 
 // Displays for testing 
 void Memory::displayMemoryBlocks(){
-  std::cout <<"Displaying Memory Blocks: \n\n";
+  std::cout <<"Displaying Memory Blocks: \n";
   int i = 0;
   for (const auto& block : memoryBlocks_) {
     std::cout << "index: " << i << ", Address: 0x" << std::hex << block.itemAddress << std::dec

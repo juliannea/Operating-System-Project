@@ -69,7 +69,7 @@ int Process::getParentPID() const{
   return parentPID_;
 }
 
-std::vector<Process> Process::getChildPIDs() const
+std::vector<Process> Process::getChildren() const
 {
   return children;
 }

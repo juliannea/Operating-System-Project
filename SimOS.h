@@ -31,9 +31,13 @@ class SimOS{
 
     void SimExit();
 
+    void SimWait();
+
     void sort();
     //getters 
     int getProcessRunningPriority() const;
+
+    void setProcessRunning(Process processRunning);
 
     //displays for testing 
     const void displayMemoryBlocks();
@@ -41,6 +45,10 @@ class SimOS{
     void displayRunningProcess() const;
 
     void displayReadyQueue() const;
+
+    void displayWaiting() const;
+
+    void displayZombies() const;
 
     private:
       unsigned long long sizeOfOS_;
