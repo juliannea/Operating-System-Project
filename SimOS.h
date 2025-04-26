@@ -7,10 +7,9 @@
 #ifndef SIMOS_H
 #define SIMOS_H
 
-constexpr int NO_PROCESS{-1}; //used to mark memory block free
 class SimOS{
   public:
-    
+
     /**
     Parameterized Constructor. 
      The parameters specify the number of hard disks in the simulated computer and amount of memory.
@@ -29,6 +28,8 @@ class SimOS{
 
     //forks currently running process 
     bool SimFork();
+
+    void SimExit();
 
     //getters 
     int getProcessRunningPriority() const;

@@ -42,7 +42,63 @@ int main(){
   std::cout << "memory blocks: " << "\n";
   testOS.displayMemoryBlocks();
 
-  
+  /*
+  std::cout <<"----------------------------------\n";
+  std::cout <<"Memory Class Test\n\n";
+  Memory testMem(2048);
+  std::cout << "RAM MEM amount: " << testMem.getMemAmount() << "\n";
+
+  std::cout << "adding memeory items: \n";
+  Memory::MemoryItem OS{
+    0,
+    1024,
+    1
+  };
+  testMem.addToMemory(OS);
+  Memory::MemoryItem item1{
+    0,
+    500,
+    2
+  };
+  testMem.addToMemory(item1);
+  Memory::MemoryItem item2{
+    0,
+    24,
+    3
+  };
+  testMem.addToMemory(item2);
+  Memory::MemoryItem item3{
+    0,
+    500,
+    4
+  };
+  testMem.addToMemory(item3);
+  testMem.displayMemoryBlocks();
+
+  std::cout << "Removing PID 2 \n";
+  testMem.removeMemoryItem(2);
+  testMem.displayMemoryBlocks();
+
+  std::cout << "removing PID 4\n";
+  testMem.removeMemoryItem(4);
+  testMem.displayMemoryBlocks();
+
+  std::cout << "side testing add\n";
+  Memory::MemoryItem item5{
+    0,
+    50,
+    5
+  };
+  testMem.addToMemory(item5);
+  testMem.displayMemoryBlocks();
+
+  std::cout << "removing PID 3\n";
+  testMem.removeMemoryItem(3);
+  testMem.displayMemoryBlocks();
+  */
+
+
+
 
  
 

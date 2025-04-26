@@ -47,4 +47,7 @@ class Process{
     unsigned long long address_;
     int parentPID_ = -1;
     std::vector<Process> children;
+    bool wait_;
+    bool zombie_;
+    bool terminated_;
 };

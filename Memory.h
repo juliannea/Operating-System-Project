@@ -3,6 +3,8 @@
 #include <vector>
 #include <algorithm>
 
+constexpr int NO_PROCESS{-1}; //used to mark memory block free
+
 #pragma once
 class Memory{
   public:
@@ -22,6 +24,11 @@ class Memory{
     Checks if there's enough memory space for the process
      */
     bool canAdd(unsigned long long processSize);
+
+    /** 
+    Removes the Memory Item with the PID given from memory
+    */
+    void removeMemoryItem(int pid);
     /**
     Adds to RAM memory if there's free memory 
     */
@@ -32,6 +39,8 @@ class Memory{
 
     //getters
     unsigned long long getAddress(int pid) const;
+
+    unsigned long long getMemAmount() const;
     
     //Displays for testing
     void displayMemoryBlocks();

@@ -99,6 +99,11 @@
     return true;
   }
 
+  void SimOS::SimExit(){
+  
+  }
+
+  //getters
   int SimOS::getProcessRunningPriority() const{
     return processRunning_.getPriority();
   }

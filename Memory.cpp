@@ -11,6 +11,13 @@ Memory::Memory(){
 //Parametized Constructor
 Memory::Memory(unsigned long long amountOfRam){
   amountOfRam_ = amountOfRam;
+   //add the memory amount to the memoryblock vector
+   Memory::MemoryItem newItem{
+    0, //address
+    amountOfRam, //size of start block (nothing in it yet)
+    NO_PROCESS //no process 
+  };
+  memoryBlocks_.push_back(newItem);
 }
 
 /**
@@ -22,6 +29,39 @@ bool Memory::canAdd(unsigned long long processSize){
     }
   }
   return false;
+}
+
+void Memory::removeMemoryItem(int pid){
+  //find index of memory item with the PID 
+  int freeIndex;
+  for(int i = 0; i < memoryBlocks_.size(); i++){
+    if(memoryBlocks_[i].PID == pid){
+      freeIndex = i;
+    }
+  }
+
+  memoryBlocks_[freeIndex].PID = NO_PROCESS; //means free 
+ 
+ 
+  //check if the one before is a free memory, if so combine the mem hole 
+  if(memoryBlocks_[freeIndex-1].PID ==  NO_PROCESS && memoryBlocks_[freeIndex + 1].PID == NO_PROCESS){
+    memoryBlocks_[freeIndex - 1].itemSize += memoryBlocks_[freeIndex].itemSize;
+    memoryBlocks_.erase(memoryBlocks_.begin() + freeIndex); 
+     
+    memoryBlocks_[freeIndex - 1].itemSize += memoryBlocks_[freeIndex].itemSize;
+    memoryBlocks_.erase(memoryBlocks_.begin() + freeIndex); 
+  }
+  else if(memoryBlocks_[freeIndex-1].PID ==  NO_PROCESS){ //means no process, free memory
+   
+    memoryBlocks_[freeIndex - 1].itemSize += memoryBlocks_[freeIndex].itemSize;
+    memoryBlocks_.erase(memoryBlocks_.begin() + freeIndex); 
+  }
+  else if(memoryBlocks_[freeIndex + 1].PID == NO_PROCESS){
+  
+    memoryBlocks_[freeIndex + 1].itemSize += memoryBlocks_[freeIndex].itemSize;
+    memoryBlocks_.erase(memoryBlocks_.begin() + freeIndex); 
+  }
+  
 }
 
 bool Memory::addToMemory(MemoryItem memoryBlock){
@@ -72,6 +112,9 @@ unsigned long long Memory::getAddress(int pid) const
   return 0;
 }
 
+unsigned long long Memory::getMemAmount() const{
+  return amountOfRam_;
+}
 //setters
 void Memory::setMemAmount(unsigned long long amountOfRam){
 
@@ -80,11 +123,13 @@ void Memory::setMemAmount(unsigned long long amountOfRam){
 
 // Displays for testing 
 void Memory::displayMemoryBlocks(){
+  std::cout <<"Displaying Memory Blocks: \n\n";
   int i = 0;
   for (const auto& block : memoryBlocks_) {
     std::cout << "index: " << i << ", Address: 0x" << std::hex << block.itemAddress << std::dec
               << ", Size: " << block.itemSize
-              << ", PID: " << block.PID << std::endl;
+              << ", PID: " << block.PID << "\n";
     i++;
   }
+  std::cout << "\n\n";
 }

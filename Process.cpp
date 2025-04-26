@@ -16,6 +16,9 @@ Process::Process(int pid, int priority, unsigned long long size , unsigned long 
   size_ = size;
   address_ = address;
   parentPID_ = parentPID;
+  wait_ = false;
+  zombie_ = false;
+  terminated_ = false;
 }
 
 //setters
