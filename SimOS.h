@@ -27,17 +27,24 @@ class SimOS{
     */
     bool NewProcess(unsigned long long size, int priority);
 
-    //getters for testing 
-    const void getMemoryBlocks();
+    //forks currently running process 
+    bool SimFork();
+
+    //displays for testing 
+    const void displayMemoryBlocks();
+
+    void displayRunningProcess() const;
+
+    void displayReadyQueue() const;
     private:
       unsigned long long sizeOfOS_;
-      int pid = 1;
+      int pid_ = 1;
       int priority = 0;
       unsigned long long address = 0; //starts in the very beginning of memory?
-
       int numberOfDisks_;
 
-      int pIDTracker_ = 0; //keep track of PID's used so know PID to assign to new process
+      int pidTracker_ = 1; //keep track of PID's used so know PID to assign to new process
+      std::vector<Process> readyQueue;
 
       Process processRunning_;  //process currently using CPU 
       Memory RAM_; //represents RAM

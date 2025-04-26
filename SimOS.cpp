@@ -22,9 +22,9 @@
 
   //now we have to add the OS process to RAM b/c it take memory space and has an address in the begining of memory
   Memory::MemoryItem OS{
-    0, //address
+    address, //address
     sizeOfOS, 
-    0, //PID
+    pid_, //PID
   };
   RAM_.addToMemory(OS);
 
@@ -37,9 +37,65 @@
   NewProcess returns true if a new process was successfully created and false if otherwise. One of the reasons a process wasn’t created is insufficient free memory in the system.
   */
   bool SimOS::NewProcess(unsigned long long size, int priority){
-   
+    //first check if can fit in RAM memory
+    if(!RAM_.canAdd(size)){
+      return false;
+    }
+
+    pidTracker_ += 1; //update pid 
+    int newPID = pidTracker_;
+    
+    //create memory item 
+    Memory::MemoryItem newItem{
+      0, //default addr, addr is determined when added 
+      size,
+      newPID
+    };
+    //add to RAM 
+    RAM_.addToMemory(newItem);
+    
+    //create new process 
+    Process newProcess(newPID, priority, size, RAM_.getAddress(newPID));
+
+    //determine if adding to ready queue or CPU 
+    if(priority > processRunning_.getPriority()){
+      //add the current process that's running to the ready queue if its not currently a default one or the OS
+      if(processRunning_.getPID() > 1){
+        readyQueue.push_back(processRunning_);
+      }
+      processRunning_ = newProcess;
+    }
+    else{
+      readyQueue.push_back(newProcess);
+    }
+    return true;
   }
 
-  const void SimOS::getMemoryBlocks(){
-    RAM_.getMemoryBlocks();
+  bool SimOS::SimFork()
+  {
+    //check that its not OS
+    if(processRunning_.getPID() == 1){
+      return false; 
+    }
+    bool ans =  NewProcess(processRunning_.getSize(), processRunning_.getPriority());
+  }
+
+  //Displays for testing
+  const void SimOS::displayMemoryBlocks(){
+    RAM_.displayMemoryBlocks();
+  }
+
+  void SimOS::displayRunningProcess() const
+  {
+    std::cout<<"Running Process: \n" << "PID: " << processRunning_.getPID() << "\nsize: " << processRunning_.getSize() << "\naddress: " << processRunning_.getAddress() << "\npriority: " << processRunning_.getPriority() << "\n";
+  }
+
+  void SimOS::displayReadyQueue() const{
+    int i = 0;
+    for (const auto& process : readyQueue) {
+      std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
+                << " priority: " << process.getPriority()
+                << " address " << process.getAddress() << std::endl;
+      i++;
+    }
   }
