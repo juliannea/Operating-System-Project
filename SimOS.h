@@ -46,9 +46,15 @@ class SimOS{
 
     MemoryUse GetMemory();
 
+    FileReadRequest GetDisk( int diskNumber );
+
+    
+
     void sort();
 
     void yieldCPU();
+
+    void processPlacement(Process newProcess);
     //getters 
     int getProcessRunningPriority() const;
 
@@ -72,7 +78,7 @@ class SimOS{
     private:
       unsigned long long sizeOfOS_;
       int pid_ = 1;
-      int priority = 0;
+      int priority_ = 0;
       unsigned long long address = 0; //starts in the very beginning of memory?
       int numberOfDisks_;
 

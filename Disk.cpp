@@ -2,7 +2,7 @@
 
 Disk::Disk(int numOfDisks){
   numOfDisks_ = numOfDisks;
-  for(int i = 1; i < numOfDisks_ + 1; i++){
+  for(int i = 0; i < numOfDisks_ ; i++){
     logicalDisk disk{
       i, //the diskNum is equal to the order it's added to the vector
     };
@@ -12,14 +12,19 @@ Disk::Disk(int numOfDisks){
 
 void Disk::readRequest(int diskNumber, std::string fileName, int pid){
   for(auto& disk: disks){
-    if(disk.diskNum ==  diskNumber){
-      //add the files read request to the collection of files read from the disk
+    if(disk.diskNum ==  diskNumber){ //find the nth disk      
+      //add the files read request to I/O queue or currentRead
       FileReadRequest file{
         pid,
         fileName
       };
-      
-      disk.filesToRead.push_back(file);
+
+      if(disk.currentRead.PID == 0){ //currently not reading
+        disk.currentRead = file;
+      }
+      else{
+        disk.filesToRead.push_back(file);
+      }
       return;
     
     }
@@ -31,14 +36,36 @@ int Disk::completeRequest(int diskNumber){
   //find disk 
   for(auto& disk: disks){
     if(disk.diskNum == diskNumber){
-      //assume FIFO complete the request and the beggining of the vector 
-      disk.filesRead.push_back(disk.filesToRead[0]);
-      int pid = disk.filesToRead[0].PID; //pid of process request that was completed
-      disk.filesToRead.erase(disk.filesToRead.begin());
+      //complete request  
+      int pid = disk.currentRead.PID; //save the pid of the process request 
+      //set the currentRead to next process to be served FIFO 
+      if(!disk.filesToRead.empty()){ //check not empty
+        disk.currentRead = disk.filesToRead[0];
+        disk.filesToRead.erase(disk.filesToRead.begin());
+      }
+      else{
+        disk.currentRead = FileReadRequest(); //set current read to default
+      }
       return pid;
     }
   }
   return 0;
+}
+
+FileReadRequest Disk::getDiskRequest(int diskNumber){
+  for(const auto& disk: disks){
+    if(disk.diskNum == diskNumber){
+      return disk.currentRead;
+    }
+  }
+  return FileReadRequest();
+}
+
+bool Disk::diskExist(int n ){
+  if (n > numOfDisks_ -1){
+    return false;
+  }
+  return true;
 }
 
 void Disk::displayDisks() const{
@@ -49,28 +76,19 @@ void Disk::displayDisks() const{
   std::cout << "Disks and Read Requests: \n";
   for (const auto& disk : disks) {
     std::cout << "Disk #" << disk.diskNum << ":\n";
+
+    std::cout << "Current Read: " << "  PID: " << disk.currentRead.PID << "  Filename: " << disk.currentRead.fileName << "\n\n";
     
     if (disk.filesToRead.empty()) {
         std::cout << "  No read requests.\n";
     } else {
-      std::cout << "  \nread requests:\n";
+      std::cout << "  read requests:\n";
         for (const auto& request : disk.filesToRead) {
             std::cout << "  PID " << request.PID 
                       << " requested file: " << request.fileName << "\n";
         }
     }
 
-    if(disk.filesRead.empty()){
-      std::cout <<"  No files read request completed\n";
-
-    }
-    else{
-      for(const auto& request: disk.filesRead){
-        std::cout << "  \n  read requests completed: \n";
-        std::cout << "  PID " << request.PID 
-                      << " requested file: " << request.fileName << "\n";
-
-      }
-    }
+    
   }
 }

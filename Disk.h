@@ -16,13 +16,18 @@ class Disk{
 
   struct logicalDisk{
     int diskNum{-1};
+    FileReadRequest currentRead = FileReadRequest();
     std::vector<FileReadRequest>filesToRead;
-    std::vector<FileReadRequest> filesRead;
+
   };
 
   void readRequest(int diskNumber, std::string fileName, int pid);
 
   int completeRequest(int diskNumber);
+
+  FileReadRequest getDiskRequest(int diskNumber);
+
+  bool diskExist(int n);
 
   void displayDisks() const;
 

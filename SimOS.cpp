@@ -28,6 +28,8 @@
     pid_, //PID
   };
   RAM_.addToMemory(OS);
+  //create OS process and set it to the CPU_ 
+  CPU_ = Process(pid_, priority_, sizeOfOS_, 0, -1);
 
 
  }
@@ -43,7 +45,6 @@
     if(!RAM_.canAdd(size)){
       return false;
     }
-
     pidTracker_ += 1; //update pid 
     int newPID = pidTracker_;
     
@@ -60,17 +61,7 @@
     Process newProcess(newPID, priority, size, RAM_.getAddress(newPID));
 
     //determine if adding to ready queue or CPU 
-    if(priority > CPU_.getPriority()){
-      //add the current process that's running to the ready queue if its not currently a default one or the OS
-      if(CPU_.getPID() > 1){
-        readyQueue.push_back(CPU_);
-      }
-      CPU_ = newProcess;
-    }
-    else{
-      readyQueue.push_back(newProcess);
-    }
-    sort(); //sort ready queue with highest priority in front
+    processPlacement(newProcess);
     return true;
   }
 
@@ -104,10 +95,28 @@
   }
 
   void SimOS::SimExit(){
-    //check if the parent is waiting or if it has no parent, no parent means no worries about zombie 
-    //first check not OS process 
-    if(CPU_.getPID() != 1){
-      int parentPID = CPU_.getParentPID();
+    if(CPU_.getPID() > 1){ //check not the OS process 
+      Process temp = CPU_; 
+      RAM_.removeMemoryItem(temp.getPID()); //release memory used by this process immediately 
+
+      //terminate all its descendants as well, remove all its children from memory and the ready queue
+      std::vector<Process> parentsChildren = temp.getChildren();
+      for(int i = 0; i < parentsChildren.size(); i++){
+        //remove from memory 
+        RAM_.removeMemoryItem(parentsChildren[i].getPID());
+        //remove from ready queue 
+        for(int j = readyQueue.size() -1; j >= 0; j--){
+          if(readyQueue[j].getPID() == parentsChildren[i].getPID()){
+            readyQueue.erase(readyQueue.begin() + j);
+          }
+        }
+      }   
+            
+      yieldCPU(); //exit process currently using CPU 
+      
+
+
+      int parentPID = temp.getParentPID(); //get the parent PID
       bool parentWaiting = false;
       int waitingIndex;
 
@@ -121,58 +130,25 @@
 
       //if parent is waiting, current process terminates and parent "goes" to ready queue or CPU 
       if(parentWaiting){
-        //move parent to ready queue
-        readyQueue.push_back(waitingProcesses[waitingIndex]);
-        sort(); //sort ready queue 
-
+        //move parent to ready queue or CPU
+        processPlacement(waitingProcesses[waitingIndex]);
         //remove parent process from waitingProcess queue 
         waitingProcesses.erase(waitingProcesses.begin() + waitingIndex);
-
       }
-      //case turns into zombie process
-      else if(!parentWaiting && CPU_.getParentPID() != -1){
-        zombieProcesses.push_back(CPU_);
-      }
-
-       //remove process from memory only if not a zombie process 
-      if(parentWaiting || CPU_.getParentPID() == -1){
-        RAM_.removeMemoryItem(CPU_.getPID());
-
-        //terminate all its descendants as well, remove all its children from memory and the ready queue
-        std::vector<Process> parentsChildren = CPU_.getChildren();
-        for(int i = 0; i < parentsChildren.size(); i++){
-          //remove from memory 
-          RAM_.removeMemoryItem(parentsChildren[i].getPID());
-          //remove from ready queue 
-          for(int j = readyQueue.size() -1; j >= 0; j--){
-            if(readyQueue[j].getPID() == parentsChildren[i].getPID()){
-              readyQueue.erase(readyQueue.begin() + j);
-            }
-          }
-        }   
-
-      }
- 
-      //just for testing purposes comment out later
-      //readyQueue.erase(readyQueue.begin());
-
-       //new process in CPU 
-       yieldCPU();
-       
+      //if parent hasn't called wait yet, and has a parent, process turns into zombie
+      else if(!parentWaiting && temp.getParentPID() != -1){
+        zombieProcesses.push_back(temp);
+      }    
 
     }
-    
   }
 
   void SimOS::SimWait(){
-    //currently running process enters waiting queue if there's no zombie child 
-    //check if has zombie child, check if PID = 1 means OS, if those conditions don't pass then enters waiting queue 
-    //if wait is over - child terminates, the process foes to end of ready queue or CPU - this is handled in the Exit function 
-    //before doing anything, make sure process isn't the OS and that it has children - no point in waiting if no children
-    if(CPU_.getPID() != 1 && !CPU_.getChildren().empty()){ 
+    if(CPU_.getPID() > 1 && !CPU_.getChildren().empty()){ //check not OS process and if it has children - no point in waiting if not children
       bool hasZombie = false;
       int zombieIndex;
 
+      //check if has zombie process
       for(int i = 0; i < zombieProcesses.size(); i++){
         if(zombieProcesses[i].getParentPID() == CPU_.getPID()){
          hasZombie = true;
@@ -181,8 +157,6 @@
       }
           
       if(hasZombie){
-        //removce zombie from memory 
-        RAM_.removeMemoryItem(zombieProcesses[zombieIndex].getPID());
         //zombie child disappears 
         zombieProcesses.erase(zombieProcesses.begin() + zombieIndex);
         //process continues running
@@ -193,13 +167,12 @@
         yieldCPU();
 
       }
-       
     }
 
   }
 
   void SimOS::DiskReadRequest( int diskNumber, std::string fileName ){
-    if(CPU_.getPID() != 1){
+    if(CPU_.getPID() > 1 && hardDisk_.diskExist(diskNumber)){
       //currently running process requests to read the specified file from the disk with given number
       hardDisk_.readRequest(diskNumber, fileName, CPU_.getPID());
       //the process issuing the disk read request stops using (yields) the CPU, 
@@ -211,29 +184,27 @@
   }
 
   void SimOS::DiskJobCompleted( int diskNumber){
-    int pid = hardDisk_.completeRequest(diskNumber); //pid of the process whose request was completed
-    if(pid > 1){
-      //the served process should return to the ready-queue or start using the CPU 
-      //find the process in the I/O queue 
-      for(int i = 0; i < inputOutputQueue.size(); i++){
-        if(inputOutputQueue[i].getPID() == pid){
-          
-          if(inputOutputQueue[i].getPriority() > CPU_.getPriority()){
-            readyQueue.push_back(CPU_);
-            CPU_ = inputOutputQueue[i];
-          }
-          else{
-            readyQueue.push_back(inputOutputQueue[i]);
-          }
+    if(hardDisk_.diskExist(diskNumber)){
 
-          inputOutputQueue.erase(inputOutputQueue.begin() + i);
-          sort();
-          return;
-        }
+      int pid = hardDisk_.completeRequest(diskNumber); //pid of the process whose request was completed
+      if(pid > 1){
+        //the served process should return to the ready-queue or start using the CPU 
+        //find the process in the I/O queue 
+        for(int i = 0; i < inputOutputQueue.size(); i++){
+          if(inputOutputQueue[i].getPID() == pid){
+          
+            processPlacement(inputOutputQueue[i]);
+
+            inputOutputQueue.erase(inputOutputQueue.begin() + i);
+            sort();
+            return;
+          }
+        } 
       }
     }
 
   }
+  
   int SimOS::GetCPU(){
     return CPU_.getPID();
   }
@@ -255,6 +226,10 @@
     return RAM_.getProcessesInMem();
   }
 
+  FileReadRequest SimOS::GetDisk( int diskNumber){
+    return hardDisk_.getDiskRequest(diskNumber);
+  }
+  
   void SimOS::sort(){
     for(int i = 1; i < readyQueue.size(); i++){
       int j = i - 1;
@@ -277,13 +252,29 @@
   
   void SimOS::yieldCPU(){
     if(readyQueue.empty()){
-      CPU_ = Process();
+      CPU_ = Process(pid_, priority_, sizeOfOS_, address, -1); //set CPU to OS process if ready queue is empty
     }
     else{
       CPU_ = readyQueue[0];
       readyQueue.erase(readyQueue.begin());
     }
   }
+  
+  void SimOS::processPlacement(Process newProcess){
+    //move the process to CPU if priority is greater than the currently running one, make sure not OS process
+    if(newProcess.getPriority() > CPU_.getPriority()){
+      if(CPU_.getPID() > 1){
+        readyQueue.push_back(CPU_);
+      }
+      
+      CPU_ = newProcess;
+    }
+    else{
+      readyQueue.push_back(newProcess);
+    }
+    sort();
+  }
+
   //getters
   int SimOS::getProcessRunningPriority() const{
     return CPU_.getPriority();
@@ -325,6 +316,7 @@
       std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
                 << " priority: " << process.getPriority()
                 << " address " << process.getAddress() 
+                << " size: " << process.getSize()
                 <<  " parent PID: " << process.getParentPID() << std::endl;
       i++;
     }

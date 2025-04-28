@@ -25,6 +25,10 @@ void displayGetQueue(std::vector<int> readyqueue){
    std::cout << "\n\n";
 }
 
+void displayDiskRequest(FileReadRequest process){
+  std::cout << "Displaying current read: PID: " << process.PID << " Filename: " << process.fileName << "\n";
+}
+
 int main(){
   std::cout <<"SimOS Constructor test\n";
   SimOS testOS(5, 2048, 1024); //disknumber, amount of RAM, sizeofOS 
@@ -43,11 +47,9 @@ int main(){
   testOS.displayRunningProcess();
 
   std::cout << "-------\n";
-  std::cout << "Display Ready Queue\n";
   testOS.displayReadyQueue();
 
 
-  
   std::cout <<"----------------------------------\n";
   std::cout <<"SimOS Fork() test\n";
   std::cout << "should be True: " << std::boolalpha << testOS.SimFork() << "\n";
@@ -55,26 +57,30 @@ int main(){
   testOS.displayRunningProcess();
 
   std::cout << "-------\n\n";
-  std::cout << "Display Ready Queue\n";
   testOS.displayReadyQueue();
 
  
   std::cout << "-------\n\n";
   std::cout << "memory blocks: " << "\n";
   testOS.displayMemoryBlocks();
+
   std::cout <<"----------------------------------\n";
   std::cout <<"SimOS Exit() and Wait() test\n";
   
   /*
+  testOS.SimExit();
   testOS.SimWait();
   std::cout << "Case for Parent is terminated PID 2 and child PID 4 should be terminated\n";
+  std::cout << "Process On CPU: "<< testOS.GetCPU() << "\n\n";
+  displayGetQueue(testOS.GetReadyQueue());
+  displayGetMemory( testOS.GetMemory());
+  std::cout << "\n";
   testOS.displayRunningProcess();
   testOS.displayReadyQueue();
   testOS.displayMemoryBlocks();
   testOS.displayZombies();
   testOS.displayWaiting();
   */
-  
   /*
   std::cout << "Child exits before parent calls wait\n";
   testOS.setProcessRunning(Process(4, 7, 500, 3, 2));
@@ -100,6 +106,7 @@ int main(){
   testOS.displayWaiting();
   testOS.displayZombies();
   */
+ 
  std::cout << "Case parent is waiting so child terminates and nothing in waiting and process queue after\n\n";
 
  std::cout << "Parent waits test, parent in waring queue and next in ready queue enters: \n";
@@ -117,7 +124,9 @@ int main(){
  testOS.displayMemoryBlocks();
  testOS.displayWaiting();
  testOS.displayZombies();
+ 
 
+ 
  std::cout <<"----------------------------------\n";
  std::cout <<"Get CPU test\n";
  std::cout << "currently running on the CPU: " << testOS.GetCPU() << "\n";
@@ -133,14 +142,6 @@ int main(){
 std::cout <<"----------------------------------\n";
 std::cout <<"Adding a process\n";
 testOS.NewProcess(250, 4);
-testOS.displayRunningProcess();
-testOS.displayReadyQueue();
-testOS.displayMemoryBlocks();
-testOS.displayWaiting();
-testOS.displayZombies();
-std::cout <<"----------------------------------\n";
-std::cout <<"Disk Read Request test\n";
-testOS.DiskReadRequest(3, "OS Project");
 std::cout << "Process On CPU: "<< testOS.GetCPU() << "\n\n";
 displayGetQueue(testOS.GetReadyQueue());
 displayGetMemory( testOS.GetMemory());
@@ -151,8 +152,26 @@ testOS.displayReadyQueue();
 testOS.displayMemoryBlocks();
 testOS.displayWaiting();
 testOS.displayZombies();
+
+
+std::cout <<"----------------------------------\n";
+std::cout <<"Disk Read Request test\n";
+testOS.DiskReadRequest(3, "OS Project");
+testOS.DiskReadRequest(3, "Juliannes Project");
+std::cout << "Process On CPU: "<< testOS.GetCPU() << "\n\n";
+displayGetQueue(testOS.GetReadyQueue());
+displayGetMemory( testOS.GetMemory());
+displayDiskRequest(testOS.GetDisk(3));
+std::cout << "\n";
+
+testOS.displayRunningProcess();
+testOS.displayReadyQueue();
+testOS.displayMemoryBlocks();
+testOS.displayWaiting();
+testOS.displayZombies();
 testOS.displayInputOutput();
 testOS.displayHardDisk();
+
 
 std::cout <<"----------------------------------\n";
 std::cout <<"DiskJobCompleted Test\n";
@@ -160,6 +179,23 @@ testOS.DiskJobCompleted(3);
 std::cout << "Process On CPU: "<< testOS.GetCPU() << "\n\n";
 displayGetQueue(testOS.GetReadyQueue());
 displayGetMemory( testOS.GetMemory());
+displayDiskRequest(testOS.GetDisk(3));
+std::cout << "\n";
+
+testOS.displayRunningProcess();
+testOS.displayReadyQueue();
+testOS.displayMemoryBlocks();
+testOS.displayWaiting();
+testOS.displayZombies();
+testOS.displayInputOutput();
+testOS.displayHardDisk();
+std::cout <<"----------------------------------\n";
+std::cout <<"Empty GetDisk Test\n";
+testOS.DiskJobCompleted(3);
+std::cout << "Process On CPU: "<< testOS.GetCPU() << "\n\n";
+displayGetQueue(testOS.GetReadyQueue());
+displayGetMemory( testOS.GetMemory());
+displayDiskRequest(testOS.GetDisk(3));
 std::cout << "\n";
 
 testOS.displayRunningProcess();
