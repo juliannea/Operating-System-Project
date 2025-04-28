@@ -12,7 +12,7 @@ class Process{
       @param address: the memory address (it's location in memory)
       @param parentPID: PID of the parent process if it's a child process, set to -1 if no parent process
     */
-    Process(int pid = -1, int priority = -1, unsigned long long size = -1, unsigned long long address = -1, int parentPID = -1);
+    Process(int pid = -1, int priority = 0, unsigned long long size = 0, unsigned long long address = 0, int parentPID = -1);
 
     void addChild(Process childProcess);
     //setters

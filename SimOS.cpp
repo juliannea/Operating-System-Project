@@ -103,11 +103,13 @@
 
   void SimOS::SimExit(){
     //check if the parent is waiting or if it has no parent, no parent means no worries about zombie 
+    //first check not OS process 
     if(processRunning_.getPID() != 1){
       int parentPID = processRunning_.getParentPID();
       bool parentWaiting = false;
       int waitingIndex;
 
+      //check if parent is waiting, in the waiting queue 
       for(int i = 0; i < waitingProcesses.size(); i++){
         if(waitingProcesses[i].getPID() == parentPID){
           parentWaiting = true;
@@ -153,13 +155,7 @@
       //readyQueue.erase(readyQueue.begin());
 
        //new process in CPU 
-       if(!readyQueue.empty()){
-        processRunning_ = readyQueue[0];
-        readyQueue.erase(readyQueue.begin());
-       }
-       else{
-        processRunning_ = Process(0,0,0,0);
-       }
+       yieldCPU();
        
 
     }
@@ -170,8 +166,8 @@
     //currently running process enters waiting queue if there's no zombie child 
     //check if has zombie child, check if PID = 1 means OS, if those conditions don't pass then enters waiting queue 
     //if wait is over - child terminates, the process foes to end of ready queue or CPU - this is handled in the Exit function 
-
-    if(processRunning_.getPID() != 1 && !processRunning_.getChildren().empty()){ //makes sure process has children
+    //before doing anything, make sure process isn't the OS and that it has children - no point in waiting if no children
+    if(processRunning_.getPID() != 1 && !processRunning_.getChildren().empty()){ 
       bool hasZombie = false;
       int zombieIndex;
 
@@ -187,17 +183,12 @@
         RAM_.removeMemoryItem(zombieProcesses[zombieIndex].getPID());
         //zombie child disappears 
         zombieProcesses.erase(zombieProcesses.begin() + zombieIndex);
+        //process continues running
       }
       else{
         //no zombie so process pauses(yields the CPU) and enters waiting queue 
         waitingProcesses.push_back(processRunning_);
-        if(!readyQueue.empty()){
-          processRunning_ = readyQueue[0];
-          readyQueue.erase(readyQueue.begin());
-        }
-        else{
-          processRunning_ = Process(0,0,0,0);
-        }
+        yieldCPU();
 
       }
        
@@ -238,6 +229,16 @@
       
       }
 
+    }
+  }
+  
+  void SimOS::yieldCPU(){
+    if(readyQueue.empty()){
+      processRunning_ = Process();
+    }
+    else{
+      processRunning_ = readyQueue[0];
+      readyQueue.erase(readyQueue.begin());
     }
   }
   //getters

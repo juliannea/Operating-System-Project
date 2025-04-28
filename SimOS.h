@@ -40,6 +40,8 @@ class SimOS{
     MemoryUse GetMemory();
 
     void sort();
+
+    void yieldCPU();
     //getters 
     int getProcessRunningPriority() const;
 
