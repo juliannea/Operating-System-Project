@@ -210,6 +210,30 @@
 
   }
 
+  void SimOS::DiskJobCompleted( int diskNumber){
+    int pid = hardDisk_.completeRequest(diskNumber); //pid of the process whose request was completed
+    if(pid > 1){
+      //the served process should return to the ready-queue or start using the CPU 
+      //find the process in the I/O queue 
+      for(int i = 0; i < inputOutputQueue.size(); i++){
+        if(inputOutputQueue[i].getPID() == pid){
+          
+          if(inputOutputQueue[i].getPriority() > CPU_.getPriority()){
+            readyQueue.push_back(CPU_);
+            CPU_ = inputOutputQueue[i];
+          }
+          else{
+            readyQueue.push_back(inputOutputQueue[i]);
+          }
+
+          inputOutputQueue.erase(inputOutputQueue.begin() + i);
+          sort();
+          return;
+        }
+      }
+    }
+
+  }
   int SimOS::GetCPU(){
     return CPU_.getPID();
   }

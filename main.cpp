@@ -154,6 +154,23 @@ testOS.displayZombies();
 testOS.displayInputOutput();
 testOS.displayHardDisk();
 
+std::cout <<"----------------------------------\n";
+std::cout <<"DiskJobCompleted Test\n";
+testOS.DiskJobCompleted(3);
+std::cout << "Process On CPU: "<< testOS.GetCPU() << "\n\n";
+displayGetQueue(testOS.GetReadyQueue());
+displayGetMemory( testOS.GetMemory());
+std::cout << "\n";
+
+testOS.displayRunningProcess();
+testOS.displayReadyQueue();
+testOS.displayMemoryBlocks();
+testOS.displayWaiting();
+testOS.displayZombies();
+testOS.displayInputOutput();
+testOS.displayHardDisk();
+
+
 
 
   /*

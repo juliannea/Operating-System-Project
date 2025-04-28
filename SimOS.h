@@ -36,6 +36,8 @@ class SimOS{
 
     void DiskReadRequest( int diskNumber, std::string fileName );
 
+    void DiskJobCompleted( int diskNumber );
+
     int GetCPU();
 
     void setReadyQueuePIDs();

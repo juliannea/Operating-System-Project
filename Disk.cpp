@@ -20,10 +20,25 @@ void Disk::readRequest(int diskNumber, std::string fileName, int pid){
       };
       
       disk.filesToRead.push_back(file);
+      return;
     
     }
   }
   
+}
+
+int Disk::completeRequest(int diskNumber){
+  //find disk 
+  for(auto& disk: disks){
+    if(disk.diskNum == diskNumber){
+      //assume FIFO complete the request and the beggining of the vector 
+      disk.filesRead.push_back(disk.filesToRead[0]);
+      int pid = disk.filesToRead[0].PID; //pid of process request that was completed
+      disk.filesToRead.erase(disk.filesToRead.begin());
+      return pid;
+    }
+  }
+  return 0;
 }
 
 void Disk::displayDisks() const{
@@ -38,6 +53,7 @@ void Disk::displayDisks() const{
     if (disk.filesToRead.empty()) {
         std::cout << "  No read requests.\n";
     } else {
+      std::cout << "  \nread requests:\n";
         for (const auto& request : disk.filesToRead) {
             std::cout << "  PID " << request.PID 
                       << " requested file: " << request.fileName << "\n";
@@ -50,6 +66,7 @@ void Disk::displayDisks() const{
     }
     else{
       for(const auto& request: disk.filesRead){
+        std::cout << "  \n  read requests completed: \n";
         std::cout << "  PID " << request.PID 
                       << " requested file: " << request.fileName << "\n";
 

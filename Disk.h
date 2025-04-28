@@ -22,6 +22,8 @@ class Disk{
 
   void readRequest(int diskNumber, std::string fileName, int pid);
 
+  int completeRequest(int diskNumber);
+
   void displayDisks() const;
 
 
