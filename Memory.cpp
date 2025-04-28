@@ -118,15 +118,18 @@ unsigned long long Memory::getMemAmount() const{
   return amountOfRam_;
 }
 
-MemoryUse Memory::getProcessesInMem()
-{
+void Memory::setProcessesInMem(){
+  processesInMem.clear();
   for (const auto& block : memoryBlocks_){
     if(block.PID != NO_PROCESS){
       processesInMem.push_back(block);
 
     }
-   
   }
+}
+MemoryUse Memory::getProcessesInMem()
+{
+  setProcessesInMem();
   return processesInMem;
 }
 

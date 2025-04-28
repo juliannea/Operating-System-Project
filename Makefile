@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -g -Wall -O2
 
 PROG ?= main
-OBJS = Memory.o Process.o SimOS.o main.o
+OBJS = Disk.o Memory.o Process.o SimOS.o main.o
 
 all: $(PROG)
 

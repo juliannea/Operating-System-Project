@@ -38,6 +38,8 @@ class Memory{
     //setters
     void setMemAmount(unsigned long long amountOfRam);
 
+    void setProcessesInMem();
+
     //getters
     unsigned long long getAddress(int pid) const;
 

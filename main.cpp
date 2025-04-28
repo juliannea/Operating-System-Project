@@ -4,9 +4,30 @@
 #include "Process.h"
 #include "Disk.h"
 
+void displayGetMemory(MemoryUse memory){
+  std::cout <<"Displaying getMemory: \n";
+  int i = 0;
+  for (const auto& block : memory) {
+    std::cout << "index: " << i << ", Address: 0x" << std::hex << block.itemAddress << std::dec
+              << ", Size: " << block.itemSize
+              << ", PID: " << block.PID << "\n";
+    i++;
+  }
+  std::cout << "\n\n";
+}
+
+void displayGetQueue(std::vector<int> readyqueue){
+  std::cout <<"Displaying getReadyQueue: \n";
+  for(const auto& pid : readyqueue){
+    std::cout << "PID: " << pid << "\n";
+  
+   }
+   std::cout << "\n\n";
+}
+
 int main(){
   std::cout <<"SimOS Constructor test\n";
-  SimOS testOS(1, 2048, 1024); //disknumber, amount of RAM, sizeofOS 
+  SimOS testOS(5, 2048, 1024); //disknumber, amount of RAM, sizeofOS 
 
   testOS.displayMemoryBlocks();
 
@@ -103,19 +124,35 @@ int main(){
 
  std::cout << "----------------\n";
  std::cout << "GetReadyQueue test\n";
- for(const auto& pid : testOS.GetReadyQueue()){
-  std::cout << "PID: " << pid << "\n";
 
- }
- int i = 0;
+ displayGetQueue(testOS.GetReadyQueue());
  std::cout << "----------------\n";
  std::cout << "GetMemory test: \n";
- for (const auto& block : testOS.GetMemory()) {
-  std::cout << "index: " << i << ", Address: 0x" << std::hex << block.itemAddress << std::dec
-            << ", Size: " << block.itemSize
-            << ", PID: " << block.PID << "\n";
-  i++;
-}
+ displayGetMemory(testOS.GetMemory());
+
+std::cout <<"----------------------------------\n";
+std::cout <<"Adding a process\n";
+testOS.NewProcess(250, 4);
+testOS.displayRunningProcess();
+testOS.displayReadyQueue();
+testOS.displayMemoryBlocks();
+testOS.displayWaiting();
+testOS.displayZombies();
+std::cout <<"----------------------------------\n";
+std::cout <<"Disk Read Request test\n";
+testOS.DiskReadRequest(3, "OS Project");
+std::cout << "Process On CPU: "<< testOS.GetCPU() << "\n\n";
+displayGetQueue(testOS.GetReadyQueue());
+displayGetMemory( testOS.GetMemory());
+std::cout << "\n";
+
+testOS.displayRunningProcess();
+testOS.displayReadyQueue();
+testOS.displayMemoryBlocks();
+testOS.displayWaiting();
+testOS.displayZombies();
+testOS.displayInputOutput();
+testOS.displayHardDisk();
 
 
 

@@ -4,6 +4,7 @@
 #include <vector>
 #include "Process.h"
 #include "Memory.h"
+#include "Disk.h"
 #ifndef SIMOS_H
 #define SIMOS_H
 
@@ -33,7 +34,11 @@ class SimOS{
 
     void SimWait();
 
+    void DiskReadRequest( int diskNumber, std::string fileName );
+
     int GetCPU();
+
+    void setReadyQueuePIDs();
 
     std::vector<int> GetReadyQueue();
 
@@ -58,6 +63,10 @@ class SimOS{
 
     void displayZombies() const;
 
+    void displayInputOutput() const;
+
+    void displayHardDisk() const;
+
     private:
       unsigned long long sizeOfOS_;
       int pid_ = 1;
@@ -70,9 +79,11 @@ class SimOS{
       std::vector<int> readyQueuePIDs;
       std::vector<Process> waitingProcesses;
       std::vector<Process> zombieProcesses;
+      std::vector<Process> inputOutputQueue;
 
-      Process processRunning_ = Process(0,0,0,0);  //process currently using CPU 
+      Process CPU_ = Process(0,0,0,0);  //process currently using CPU 
       Memory RAM_; //represents RAM
+      Disk hardDisk_;
 
 };
 
