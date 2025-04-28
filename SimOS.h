@@ -33,6 +33,12 @@ class SimOS{
 
     void SimWait();
 
+    int GetCPU();
+
+    std::vector<int> GetReadyQueue();
+
+    MemoryUse GetMemory();
+
     void sort();
     //getters 
     int getProcessRunningPriority() const;
@@ -59,6 +65,7 @@ class SimOS{
 
       int pidTracker_ = 1; //keep track of PID's used so know PID to assign to new process
       std::vector<Process> readyQueue;
+      std::vector<int> readyQueuePIDs;
       std::vector<Process> waitingProcesses;
       std::vector<Process> zombieProcesses;
 

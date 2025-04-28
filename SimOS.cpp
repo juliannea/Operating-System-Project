@@ -13,7 +13,7 @@
   RAM_.setMemAmount(amountOfRAM);
 
   //add the memory amount to the memoryblock vector
-  Memory::MemoryItem newItem{
+  MemoryItem newItem{
     0, //address
     amountOfRAM, //size of start block (nothing in it yet)
     NO_PROCESS //no process 
@@ -21,7 +21,7 @@
   RAM_.addToMemory(newItem);
 
   //now we have to add the OS process to RAM b/c it take memory space and has an address in the begining of memory
-  Memory::MemoryItem OS{
+  MemoryItem OS{
     address, //address
     sizeOfOS, 
     pid_, //PID
@@ -46,7 +46,7 @@
     int newPID = pidTracker_;
     
     //create memory item 
-    Memory::MemoryItem newItem{
+    MemoryItem newItem{
       0, //default addr, addr is determined when added 
       size,
       newPID
@@ -83,7 +83,7 @@
     int childPID = pidTracker_;
 
     //create memory block for child process 
-    Memory::MemoryItem childMem{
+    MemoryItem childMem{
       0, //default address, real addr is set when added 
       processRunning_.getSize(),
       childPID
@@ -202,12 +202,25 @@
       }
        
     }
-    
-    
-
-    
 
   }
+
+  int SimOS::GetCPU(){
+    return processRunning_.getPID();
+  }
+
+  std::vector<int> SimOS::GetReadyQueue(){
+    for(const auto& process : readyQueue){
+      readyQueuePIDs.push_back(process.getPID());
+    }
+    return readyQueuePIDs;
+  }
+
+  MemoryUse SimOS::GetMemory()
+  {
+    return RAM_.getProcessesInMem();
+  }
+
   void SimOS::sort(){
     for(int i = 1; i < readyQueue.size(); i++){
       int j = i - 1;

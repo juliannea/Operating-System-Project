@@ -3,6 +3,8 @@
 #include "Memory.h"
 
 
+
+
 //Default Constructor
 Memory::Memory(){
 
@@ -12,7 +14,7 @@ Memory::Memory(){
 Memory::Memory(unsigned long long amountOfRam){
   amountOfRam_ = amountOfRam;
    //add the memory amount to the memoryblock vector
-   Memory::MemoryItem newItem{
+   MemoryItem newItem{
     0, //address
     amountOfRam, //size of start block (nothing in it yet)
     NO_PROCESS //no process 
@@ -115,7 +117,20 @@ unsigned long long Memory::getAddress(int pid) const
 unsigned long long Memory::getMemAmount() const{
   return amountOfRam_;
 }
-//setters
+
+MemoryUse Memory::getProcessesInMem()
+{
+  for (const auto& block : memoryBlocks_){
+    if(block.PID != NO_PROCESS){
+      processesInMem.push_back(block);
+
+    }
+   
+  }
+  return processesInMem;
+}
+
+ // setters
 void Memory::setMemAmount(unsigned long long amountOfRam){
 
   amountOfRam_ = amountOfRam;

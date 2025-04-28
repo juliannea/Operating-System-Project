@@ -97,6 +97,28 @@ int main(){
  testOS.displayWaiting();
  testOS.displayZombies();
 
+ std::cout <<"----------------------------------\n";
+ std::cout <<"Get CPU test\n";
+ std::cout << "currently running on the CPU: " << testOS.GetCPU() << "\n";
+
+ std::cout << "----------------\n";
+ std::cout << "GetReadyQueue test\n";
+ for(const auto& pid : testOS.GetReadyQueue()){
+  std::cout << "PID: " << pid << "\n";
+
+ }
+ int i = 0;
+ std::cout << "----------------\n";
+ std::cout << "GetMemory test: \n";
+ for (const auto& block : testOS.GetMemory()) {
+  std::cout << "index: " << i << ", Address: 0x" << std::hex << block.itemAddress << std::dec
+            << ", Size: " << block.itemSize
+            << ", PID: " << block.PID << "\n";
+  i++;
+}
+
+
+
   /*
   std::cout <<"----------------------------------\n";
   std::cout <<"Memory Class Test\n\n";
