@@ -17,7 +17,7 @@ class Disk{
   struct logicalDisk{
     int diskNum{-1};
     FileReadRequest currentRead = FileReadRequest();
-    std::vector<FileReadRequest>filesToRead;
+    std::queue<FileReadRequest>filesToRead;
 
   };
 
@@ -26,6 +26,8 @@ class Disk{
   int completeRequest(int diskNumber);
 
   FileReadRequest getDiskRequest(int diskNumber);
+
+  std::queue<FileReadRequest> getDiskQueue( int diskNumber);
 
   bool diskExist(int n);
 

@@ -48,6 +48,9 @@ class SimOS{
 
     FileReadRequest GetDisk( int diskNumber );
 
+    std::queue<FileReadRequest> GetDiskQueue( int diskNumber );
+
+
     
 
     void sort();

@@ -230,6 +230,12 @@
     return hardDisk_.getDiskRequest(diskNumber);
   }
   
+  std::queue<FileReadRequest> SimOS::GetDiskQueue(int diskNumber){
+    return hardDisk_.getDiskQueue(diskNumber);
+  }
+
+
+
   void SimOS::sort(){
     for(int i = 1; i < readyQueue.size(); i++){
       int j = i - 1;

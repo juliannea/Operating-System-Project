@@ -29,6 +29,13 @@ void displayDiskRequest(FileReadRequest process){
   std::cout << "Displaying current read: PID: " << process.PID << " Filename: " << process.fileName << "\n";
 }
 
+void displayDiskQueue(std::queue<FileReadRequest> queue){
+  std::cout << "Displaying Disk Queue\n";
+  while(!queue.empty()){
+    std::cout << "PID: " << queue.front().PID << " FileName: " << queue.front().fileName << " \n";
+    queue.pop();
+  }
+}
 int main(){
   std::cout <<"SimOS Constructor test\n";
   SimOS testOS(5, 2048, 1024); //disknumber, amount of RAM, sizeofOS 
@@ -161,7 +168,11 @@ testOS.DiskReadRequest(3, "Juliannes Project");
 std::cout << "Process On CPU: "<< testOS.GetCPU() << "\n\n";
 displayGetQueue(testOS.GetReadyQueue());
 displayGetMemory( testOS.GetMemory());
+displayDiskQueue(testOS.GetDiskQueue(3));
+
 displayDiskRequest(testOS.GetDisk(3));
+testOS.displayInputOutput();
+testOS.displayHardDisk();
 std::cout << "\n";
 
 testOS.displayRunningProcess();
@@ -169,8 +180,6 @@ testOS.displayReadyQueue();
 testOS.displayMemoryBlocks();
 testOS.displayWaiting();
 testOS.displayZombies();
-testOS.displayInputOutput();
-testOS.displayHardDisk();
 
 
 std::cout <<"----------------------------------\n";
@@ -179,7 +188,10 @@ testOS.DiskJobCompleted(3);
 std::cout << "Process On CPU: "<< testOS.GetCPU() << "\n\n";
 displayGetQueue(testOS.GetReadyQueue());
 displayGetMemory( testOS.GetMemory());
+
 displayDiskRequest(testOS.GetDisk(3));
+testOS.displayInputOutput();
+testOS.displayHardDisk();
 std::cout << "\n";
 
 testOS.displayRunningProcess();
@@ -187,26 +199,30 @@ testOS.displayReadyQueue();
 testOS.displayMemoryBlocks();
 testOS.displayWaiting();
 testOS.displayZombies();
-testOS.displayInputOutput();
-testOS.displayHardDisk();
 std::cout <<"----------------------------------\n";
 std::cout <<"Empty GetDisk Test\n";
 testOS.DiskJobCompleted(3);
 std::cout << "Process On CPU: "<< testOS.GetCPU() << "\n\n";
 displayGetQueue(testOS.GetReadyQueue());
 displayGetMemory( testOS.GetMemory());
+
 displayDiskRequest(testOS.GetDisk(3));
+testOS.displayInputOutput();
+testOS.displayHardDisk();
 std::cout << "\n";
 
 testOS.displayRunningProcess();
 testOS.displayReadyQueue();
 testOS.displayMemoryBlocks();
-testOS.displayWaiting();
-testOS.displayZombies();
-testOS.displayInputOutput();
-testOS.displayHardDisk();
 
 
+/*
+std::cout <<"----------------------------------\n";
+std::cout <<"GetDisks queue test\n";
+testOS.DiskReadRequest(4, "Book1");
+testOS.DiskReadRequest(4, "Book2");
+testOS.DiskReadRequest(4, "Book3");
+*/
 
 
   /*

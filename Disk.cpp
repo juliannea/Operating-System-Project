@@ -23,7 +23,7 @@ void Disk::readRequest(int diskNumber, std::string fileName, int pid){
         disk.currentRead = file;
       }
       else{
-        disk.filesToRead.push_back(file);
+        disk.filesToRead.push(file);
       }
       return;
     
@@ -40,8 +40,8 @@ int Disk::completeRequest(int diskNumber){
       int pid = disk.currentRead.PID; //save the pid of the process request 
       //set the currentRead to next process to be served FIFO 
       if(!disk.filesToRead.empty()){ //check not empty
-        disk.currentRead = disk.filesToRead[0];
-        disk.filesToRead.erase(disk.filesToRead.begin());
+        disk.currentRead = disk.filesToRead.front();
+        disk.filesToRead.pop();
       }
       else{
         disk.currentRead = FileReadRequest(); //set current read to default
@@ -68,6 +68,16 @@ bool Disk::diskExist(int n ){
   return true;
 }
 
+std::queue<FileReadRequest> Disk::getDiskQueue(int diskNumber){
+  for(const auto& disk: disks){
+    if(disk.diskNum == diskNumber){
+      return disk.filesToRead;
+    }
+  }
+  std::queue<FileReadRequest> empty;
+  return empty; //empty if disk doesnt exist with that number
+}
+
 void Disk::displayDisks() const{
   if(disks.empty()){
     std::cout << "No disks\n";
@@ -82,11 +92,15 @@ void Disk::displayDisks() const{
     if (disk.filesToRead.empty()) {
         std::cout << "  No read requests.\n";
     } else {
+      std::queue<FileReadRequest> temp = disk.filesToRead;
       std::cout << "  read requests:\n";
-        for (const auto& request : disk.filesToRead) {
-            std::cout << "  PID " << request.PID 
-                      << " requested file: " << request.fileName << "\n";
+
+        while(!temp.empty()){
+          std::cout << "  PID " << temp.front().PID
+                      << " requested file: " << temp.front().fileName << "\n";
+          temp.pop();
         }
+       
     }
 
     
