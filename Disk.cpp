@@ -1,3 +1,4 @@
+//Julianne Aguilar
 #include "Disk.h"
 
 Disk::Disk(int numOfDisks){

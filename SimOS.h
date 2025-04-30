@@ -40,8 +40,6 @@ class SimOS{
 
     int GetCPU();
 
-    void setReadyQueuePIDs();
-
     std::vector<int> GetReadyQueue();
 
     MemoryUse GetMemory();
@@ -50,9 +48,9 @@ class SimOS{
 
     std::queue<FileReadRequest> GetDiskQueue( int diskNumber );
 
-
     
-
+    void setReadyQueuePIDs();
+    
     void sort();
 
     void yieldCPU();

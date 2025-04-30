@@ -1,3 +1,4 @@
+//Julianne Aguilar
 #include <iostream>
 #include "SimOS.h"
 #include "Memory.h"
@@ -36,7 +37,11 @@ void displayDiskQueue(std::queue<FileReadRequest> queue){
     queue.pop();
   }
 }
+
+/*
 int main(){
+
+  /*
   std::cout <<"SimOS Constructor test\n";
   SimOS testOS(5, 2048, 1024); //disknumber, amount of RAM, sizeofOS 
 
@@ -114,6 +119,7 @@ int main(){
   testOS.displayZombies();
   */
  
+  /*
  std::cout << "Case parent is waiting so child terminates and nothing in waiting and process queue after\n\n";
 
  std::cout << "Parent waits test, parent in waring queue and next in ready queue enters: \n";
@@ -214,6 +220,7 @@ std::cout << "\n";
 testOS.displayRunningProcess();
 testOS.displayReadyQueue();
 testOS.displayMemoryBlocks();
+*/
 
 
 /*
@@ -285,4 +292,3 @@ testOS.DiskReadRequest(4, "Book3");
 
  
 
-}
