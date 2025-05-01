@@ -29,7 +29,7 @@
   };
   RAM_.addToMemory(OS);
   //create OS process and set it to the CPU_ 
-  CPU_ = Process(pid_, priority_, sizeOfOS_, 0, -1);
+  CPU_ = Process(pid_, priority_, sizeOfOS_, -1);
 
 
  }
@@ -50,7 +50,7 @@
     
     //create memory item 
     MemoryItem newItem{
-      0, //default addr, addr is determined when added 
+      0, //default addr, real addr is determined when added 
       size,
       newPID
     };
@@ -58,7 +58,7 @@
     RAM_.addToMemory(newItem);
     
     //create new process 
-    Process newProcess(newPID, priority, size, RAM_.getAddress(newPID));
+    Process newProcess(newPID, priority, size);
 
     //determine if adding to ready queue or CPU 
     processPlacement(newProcess);
@@ -84,7 +84,7 @@
     RAM_.addToMemory(childMem);
 
     //create child process 
-    Process childProcess(childPID, CPU_.getPriority(), CPU_.getSize(), RAM_.getAddress(childPID), CPU_.getPID());
+    Process childProcess(childPID, CPU_.getPriority(), CPU_.getSize(), CPU_.getPID());
     readyQueue.push_back(childProcess);
     sort();
 
@@ -144,7 +144,7 @@
   }
 
   void SimOS::SimWait(){
-    if(CPU_.getPID() > 1 && !CPU_.getChildren().empty()){ //check not OS process and if it has children - no point in waiting if not children
+    if(CPU_.getPID() > 1 && !CPU_.getChildren().empty()){ //check not OS process and if it has children - no point in waiting if no children
       bool hasZombie = false;
       int zombieIndex;
 
@@ -196,7 +196,6 @@
             processPlacement(inputOutputQueue[i]);
 
             inputOutputQueue.erase(inputOutputQueue.begin() + i);
-            sort();
             return;
           }
         } 
@@ -244,7 +243,6 @@
         temp.setPID(readyQueue[j+1].getPID());
         temp.setPriority(readyQueue[j+1].getPriority());
         temp.setSize(readyQueue[j + 1].getSize());
-        temp.setAddress(readyQueue[j+1].getAddress());
         temp.setParentPID(readyQueue[j+1].getParentPID());
         
         readyQueue[j + 1] = readyQueue[j];
@@ -258,7 +256,7 @@
   
   void SimOS::yieldCPU(){
     if(readyQueue.empty()){
-      CPU_ = Process(pid_, priority_, sizeOfOS_, address, -1); //set CPU to OS process if ready queue is empty
+      CPU_ = Process(pid_, priority_, sizeOfOS_, -1); //set CPU to OS process if ready queue is empty
     }
     else{
       CPU_ = readyQueue[0];
@@ -301,14 +299,13 @@
     std::cout << "PID: " << CPU_.getPID();
     std::cout << " Priority: " << CPU_.getPriority();
     std::cout << " Size: " << CPU_.getSize();
-    std::cout << " Address: " << CPU_.getAddress();
     std::cout << " Parent PID: " << CPU_.getParentPID() << "\n \n";
     std::cout <<"Children if have any: \n";
     int i = 0;
     for (const auto& process : CPU_.getChildren()) {
       std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
                 << " priority: " << process.getPriority()
-                << " address: " << process.getAddress() 
+              
                 << " parent PID: "<< process.getParentPID() <<std::endl;
       i++;
     }
@@ -321,7 +318,6 @@
     for (const auto& process : readyQueue) {
       std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
                 << " priority: " << process.getPriority()
-                << " address " << process.getAddress() 
                 << " size: " << process.getSize()
                 <<  " parent PID: " << process.getParentPID() << std::endl;
       i++;
@@ -335,7 +331,6 @@
     for (const auto& process : waitingProcesses) {
       std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
                 << " priority: " << process.getPriority()
-                << " address " << process.getAddress() 
                 <<  " parent PID: " << process.getParentPID() << std::endl;
       i++;
     }
@@ -347,8 +342,7 @@
     int i = 0;
     for (const auto& process : zombieProcesses) {
       std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
-                << " priority: " << process.getPriority()
-                << " address " << process.getAddress() 
+                << " priority: " << process.getPriority() 
                 <<  " parent PID: " << process.getParentPID() << std::endl;
       i++;
     }
@@ -361,7 +355,6 @@
     for (const auto& process : inputOutputQueue) {
       std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
                 << " priority: " << process.getPriority()
-                << " address " << process.getAddress() 
                 <<  " parent PID: " << process.getParentPID() << std::endl;
       i++;
     }

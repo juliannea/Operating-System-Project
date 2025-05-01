@@ -10,11 +10,10 @@
   @param sizes: the size of the process 
   @param address: the memory address (it's location in memory)
   */
-Process::Process(int pid, int priority, unsigned long long size , unsigned long long address, int parentPID){
+Process::Process(int pid, int priority, unsigned long long size, int parentPID){
   pid_ = pid;
   priority_ = priority;
   size_ = size;
-  address_ = address;
   parentPID_ = parentPID;
 
 }
@@ -36,9 +35,6 @@ void Process::setSize(unsigned long long size){
   size_ = size;
 }
 
-void Process::setAddress(unsigned long long address){
-  address_ = address;
-}
 
 void Process::setParentPID(int parentPID){
   parentPID_ = parentPID;
@@ -60,10 +56,6 @@ unsigned long long Process::getSize() const
   return size_;
 }
 
-unsigned long long Process::getAddress() const
-{
-  return address_;
-}
 
 int Process::getParentPID() const{
   return parentPID_;

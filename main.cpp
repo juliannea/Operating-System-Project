@@ -38,7 +38,7 @@ void displayDiskQueue(std::queue<FileReadRequest> queue){
   }
 }
 
-/*
+
 int main(){
 
   /*
@@ -286,6 +286,7 @@ testOS.DiskReadRequest(4, "Book3");
   testMem.removeMemoryItem(3);
   testMem.displayMemoryBlocks();
   */
+}
 
 
 

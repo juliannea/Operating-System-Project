@@ -12,7 +12,7 @@ class Process{
       @param address: the memory address (it's location in memory)
       @param parentPID: PID of the parent process if it's a child process, set to -1 if no parent process
     */
-    Process(int pid = -1, int priority = 0, unsigned long long size = 0, unsigned long long address = 0, int parentPID = -1);
+    Process(int pid = -1, int priority = 0, unsigned long long size = 0, int parentPID = -1);
 
     void addChild(Process childProcess);
     //setters
@@ -21,8 +21,6 @@ class Process{
     void setPriority(int priority);
 
     void setSize(unsigned long long size);
-
-    void setAddress(unsigned long long address);
 
     void setParentPID(int parentPID);
 
@@ -33,8 +31,6 @@ class Process{
 
     unsigned long long getSize() const;
 
-    unsigned long long getAddress() const;
-
     int getParentPID() const;
 
 
@@ -44,7 +40,6 @@ class Process{
     int pid_;
     int priority_;
     unsigned long long size_;
-    unsigned long long address_;
     int parentPID_ = -1;
     std::vector<Process> children;
    
