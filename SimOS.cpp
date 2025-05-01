@@ -1,12 +1,7 @@
 //Julianne Aguilar 
 #include "SimOS.h"
 
-  /**
-  Parameterized Constructor. 
-  The parameters specify the number of hard disks in the simulated computer and amount of memory.
-  Disk enumeration starts from 0.
-  @param: sizeOfOS specifies the size of the OS process. It has the PID of 1, priority of 0, and resides in the very beginning of memory.
-  */
+  //Parametized Constructor
  SimOS::SimOS(int numberOfDisks, unsigned long long amountOfRAM, unsigned long long sizeOfOS){
   numberOfDisks_ = numberOfDisks;
   hardDisk_ = Disk(numberOfDisks_);
@@ -48,13 +43,13 @@
     pidTracker_ += 1; //update pid 
     int newPID = pidTracker_;
     
-    //create memory item 
+    //create memory item for process
     MemoryItem newItem{
       0, //default addr, real addr is determined when added 
       size,
       newPID
     };
-    //add to RAM 
+    //add process memory to RAM 
     RAM_.addToMemory(newItem);
     
     //create new process 
@@ -68,7 +63,7 @@
   bool SimOS::SimFork()
   {
     //check that its not OS and can fit in memory 
-    if(CPU_.getPID() == 1 || !RAM_.canAdd(CPU_.getSize())){
+    if(CPU_.getPID() <= 1 || !RAM_.canAdd(CPU_.getSize())){
       return false; 
     }
     //create child process: priority & size inherited from parent, PID different place in memory different
@@ -100,46 +95,39 @@
       RAM_.removeMemoryItem(temp.getPID()); //release memory used by this process immediately 
 
       //terminate all its descendants as well, remove all its children from memory and the ready queue
-      std::vector<Process> parentsChildren = temp.getChildren();
-      for(int i = 0; i < parentsChildren.size(); i++){
-        //remove from memory 
-        RAM_.removeMemoryItem(parentsChildren[i].getPID());
-        //remove from ready queue 
-        for(int j = readyQueue.size() -1; j >= 0; j--){
-          if(readyQueue[j].getPID() == parentsChildren[i].getPID()){
-            readyQueue.erase(readyQueue.begin() + j);
-          }
+      for(int i = readyQueue.size() - 1; i >= 0; i--){
+        if(readyQueue[i].getParentPID() == temp.getPID()){ //found a descendant
+          RAM_.removeMemoryItem(readyQueue[i].getPID()); //remove child process from memory 
+          readyQueue.erase(readyQueue.begin() + i); //remove child process from ready queue
         }
-      }   
-            
+      }    
       yieldCPU(); //exit process currently using CPU 
       
-
-
+      //determine if becomes zombie process 
       int parentPID = temp.getParentPID(); //get the parent PID
-      bool parentWaiting = false;
-      int waitingIndex;
 
-      //check if parent is waiting, in the waiting queue 
-      for(int i = 0; i < waitingProcesses.size(); i++){
-        if(waitingProcesses[i].getPID() == parentPID){
-          parentWaiting = true;
-          waitingIndex = i;
+      if(parentPID > 1){//means has a parent, so check if parent is waiting else turn to zombie
+        bool parentWaiting = false;
+        int waitingIndex;
+
+        //check if parent is waiting, in the waiting queue 
+        for(int i = 0; i < waitingProcesses.size(); i++){
+          if(waitingProcesses[i].getPID() == parentPID){
+            parentWaiting = true;
+            waitingIndex = i;
+          }
         }
-      }
 
-      //if parent is waiting, current process terminates and parent "goes" to ready queue or CPU 
-      if(parentWaiting){
-        //move parent to ready queue or CPU
-        processPlacement(waitingProcesses[waitingIndex]);
-        //remove parent process from waitingProcess queue 
-        waitingProcesses.erase(waitingProcesses.begin() + waitingIndex);
-      }
-      //if parent hasn't called wait yet, and has a parent, process turns into zombie
-      else if(!parentWaiting && temp.getParentPID() != -1){
-        zombieProcesses.push_back(temp);
-      }    
-
+        if(parentWaiting){
+          //current process terminates and parent "goes" to ready queue or CPU 
+          processPlacement(waitingProcesses[waitingIndex]);
+          //remove parent from waiting queue 
+          waitingProcesses.erase(waitingProcesses.begin() + waitingIndex);
+        }
+        else{ //terminates and becomes a zombie process
+          zombieProcesses.push_back(temp);
+        }
+      }     
     }
   }
 
@@ -303,7 +291,7 @@
     std::cout <<"Children if have any: \n";
     int i = 0;
     for (const auto& process : CPU_.getChildren()) {
-      std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
+      std::cout << "Index: " << i << ", PID: " <<  process.getPID() << std::dec
                 << " priority: " << process.getPriority()
               
                 << " parent PID: "<< process.getParentPID() <<std::endl;
@@ -316,7 +304,7 @@
     std::cout << "Displaying Ready Queue\n";
     int i = 0;
     for (const auto& process : readyQueue) {
-      std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
+      std::cout << "Index: " << i << ", PID: " <<  process.getPID() << std::dec
                 << " priority: " << process.getPriority()
                 << " size: " << process.getSize()
                 <<  " parent PID: " << process.getParentPID() << std::endl;
@@ -363,4 +351,5 @@
  
   void SimOS::displayHardDisk() const{
     hardDisk_.displayDisks();
+    std::cout << "\n\n";
   }

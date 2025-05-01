@@ -1,10 +1,6 @@
 //Julianne Aguilar 
 
 #include "Memory.h"
-
-
-
-
 //Default Constructor
 Memory::Memory(){
 
@@ -22,8 +18,7 @@ Memory::Memory(unsigned long long amountOfRam){
   memoryBlocks_.push_back(newItem);
 }
 
-/**
-Checks if there's enough memory space for the process*/
+//Checks if can add process to memeory 
 bool Memory::canAdd(unsigned long long processSize){
   for(const auto& block: memoryBlocks_){
     if(processSize <= block.itemSize && block.PID == -1){
@@ -33,6 +28,7 @@ bool Memory::canAdd(unsigned long long processSize){
   return false;
 }
 
+//Removes specified process from RAM memory 
 void Memory::removeMemoryItem(int pid){
   //find index of memory item with the PID 
   int freeIndex;
@@ -66,10 +62,10 @@ void Memory::removeMemoryItem(int pid){
   
 }
 
+//Adds process's memory block to RAM to the largest hole - worst fit approach
 bool Memory::addToMemory(MemoryItem memoryBlock){
   //if memoryBlocks vector empyty mean initalize it with the starting RAM memory 
   if(memoryBlocks_.empty()){
-    //just push it 
     memoryBlocks_.push_back(memoryBlock);
     return true;
   }
@@ -79,7 +75,7 @@ bool Memory::addToMemory(MemoryItem memoryBlock){
     int maxIndex; 
 
     for(int i = 0; i < memoryBlocks_.size();i++){
-      if(memoryBlocks_[i].itemSize > currMax && memoryBlocks_[i].PID == -1){
+      if(memoryBlocks_[i].itemSize > currMax && memoryBlocks_[i].PID == NO_PROCESS){
         currMax = memoryBlocks_[i].itemSize;
         maxIndex = i;
       }
@@ -89,8 +85,8 @@ bool Memory::addToMemory(MemoryItem memoryBlock){
     if(memoryBlock.itemSize <= memoryBlocks_[maxIndex].itemSize){
       memoryBlock.itemAddress = maxIndex; 
       memoryBlocks_.insert(memoryBlocks_.begin() + maxIndex, memoryBlock);
-      memoryBlocks_[maxIndex + 1].itemSize = memoryBlocks_[maxIndex + 1].itemSize - memoryBlock.itemSize;
-      memoryBlocks_[maxIndex + 1].itemAddress = maxIndex + 1;
+      memoryBlocks_[maxIndex + 1].itemSize = memoryBlocks_[maxIndex + 1].itemSize - memoryBlock.itemSize; //update size of free memory
+      memoryBlocks_[maxIndex + 1].itemAddress = maxIndex + 1; //update free memory position in memory
  
       return true;
     }
@@ -99,25 +95,7 @@ bool Memory::addToMemory(MemoryItem memoryBlock){
   return false;
 }
 
-/**
-Gets the memory address of the process 
-@param: pid of the process you want the address of 
-@return: address of the process with the pid 
-*/
-unsigned long long Memory::getAddress(int pid) const
-{
-  for(const auto& block : memoryBlocks_){
-    if(pid == block.PID){
-      return block.itemAddress;
-    }
-  }
-  return 0;
-}
-
-unsigned long long Memory::getMemAmount() const{
-  return amountOfRam_;
-}
-
+//sets the processes in memory
 void Memory::setProcessesInMem(){
   processesInMem.clear();
   for (const auto& block : memoryBlocks_){
@@ -127,16 +105,15 @@ void Memory::setProcessesInMem(){
     }
   }
 }
+
+void Memory::setMemAmount(unsigned long long amountOfRam){
+  amountOfRam_ = amountOfRam;
+} // return the processes in memory in order from lowest to highest address
+
 MemoryUse Memory::getProcessesInMem()
 {
   setProcessesInMem();
   return processesInMem;
-}
-
- // setters
-void Memory::setMemAmount(unsigned long long amountOfRam){
-
-  amountOfRam_ = amountOfRam;
 }
 
 // Displays for testing 

@@ -36,15 +36,11 @@ class Memory{
     bool addToMemory(MemoryItem memoryBlock);
 
     //setters
-    void setMemAmount(unsigned long long amountOfRam);
-
     void setProcessesInMem();
 
+    void setMemAmount(unsigned long long amountOfRam);
+
     //getters
-    unsigned long long getAddress(int pid) const;
-
-    unsigned long long getMemAmount() const;
-
     MemoryUse getProcessesInMem();
     
     //Displays for testing
