@@ -41,22 +41,23 @@ void Memory::removeMemoryItem(int pid){
   memoryBlocks_[freeIndex].PID = NO_PROCESS; //means free 
  
  
-  //check if the one before is a free memory, if so combine the mem hole 
+  //if both before and after index combine
   if(memoryBlocks_[freeIndex-1].PID ==  NO_PROCESS && memoryBlocks_[freeIndex + 1].PID == NO_PROCESS){
     memoryBlocks_[freeIndex - 1].itemSize += memoryBlocks_[freeIndex].itemSize;
     memoryBlocks_.erase(memoryBlocks_.begin() + freeIndex); 
      
+    //the one after
     memoryBlocks_[freeIndex - 1].itemSize += memoryBlocks_[freeIndex].itemSize;
     memoryBlocks_.erase(memoryBlocks_.begin() + freeIndex); 
   }
-  else if(memoryBlocks_[freeIndex-1].PID ==  NO_PROCESS){ //means no process, free memory
-   
+  else if(memoryBlocks_[freeIndex-1].PID ==  NO_PROCESS){ //if prev index has free memory combine
     memoryBlocks_[freeIndex - 1].itemSize += memoryBlocks_[freeIndex].itemSize;
     memoryBlocks_.erase(memoryBlocks_.begin() + freeIndex); 
   }
-  else if(memoryBlocks_[freeIndex + 1].PID == NO_PROCESS){
+  else if(memoryBlocks_[freeIndex + 1].PID == NO_PROCESS){ //if after index has free memory combine
   
     memoryBlocks_[freeIndex + 1].itemSize += memoryBlocks_[freeIndex].itemSize;
+    memoryBlocks_[freeIndex + 1].itemAddress = memoryBlocks_[freeIndex].itemAddress;
     memoryBlocks_.erase(memoryBlocks_.begin() + freeIndex); 
   }
   
@@ -83,11 +84,14 @@ bool Memory::addToMemory(MemoryItem memoryBlock){
     
     //check if can fit memory block in the largest free memory, then add it 
     if(memoryBlock.itemSize <= memoryBlocks_[maxIndex].itemSize){
-      memoryBlock.itemAddress = maxIndex; 
+      memoryBlock.itemAddress = memoryBlocks_[maxIndex].itemAddress; 
       memoryBlocks_.insert(memoryBlocks_.begin() + maxIndex, memoryBlock);
       memoryBlocks_[maxIndex + 1].itemSize = memoryBlocks_[maxIndex + 1].itemSize - memoryBlock.itemSize; //update size of free memory
-      memoryBlocks_[maxIndex + 1].itemAddress = maxIndex + 1; //update free memory position in memory
- 
+      memoryBlocks_[maxIndex + 1].itemAddress = memoryBlock.itemAddress + memoryBlock.itemSize; //update free memory position in memory
+      //if free memory size is now 0 then remove 
+      if(memoryBlocks_[maxIndex + 1].itemSize == 0){
+        memoryBlocks_.erase(memoryBlocks_.begin() + (maxIndex + 1));
+      }
       return true;
     }
    
@@ -121,7 +125,7 @@ void Memory::displayMemoryBlocks(){
   std::cout <<"Displaying Memory Blocks: \n";
   int i = 0;
   for (const auto& block : memoryBlocks_) {
-    std::cout << "index: " << i << ", Address: 0x" << std::hex << block.itemAddress << std::dec
+    std::cout << "index: " << i << ", Address: 0x" << block.itemAddress << std::dec
               << ", Size: " << block.itemSize
               << ", PID: " << block.PID << "\n";
     i++;
