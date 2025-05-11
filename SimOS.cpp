@@ -132,8 +132,15 @@
   }
 
   void SimOS::SimWait(){
-    if(CPU_.getPID() > 1 && !CPU_.getChildren().empty()){ //check not OS process and if it has children - no point in waiting if no children
-      bool hasZombie = false;
+    //check if has a child in queue, if no child then no wait 
+    bool hasChild = false;
+    for (const auto& process: readyQueue){
+      if(process.getParentPID() == CPU_.getPID()){
+        hasChild = true;
+      }
+    }
+
+    bool hasZombie = false;
       int zombieIndex;
 
       //check if has zombie process
@@ -143,10 +150,13 @@
          zombieIndex = i;
         }
       }
-          
+
+    if(CPU_.getPID() > 1 && (hasChild || hasZombie)){ //check not OS process and if it has children - no point in waiting if no children
+   
       if(hasZombie){
         //zombie child disappears 
         zombieProcesses.erase(zombieProcesses.begin() + zombieIndex);
+        std::cout << "HAS ZOMBIE\n" << "\n";
         //process continues running
       }
       else{
