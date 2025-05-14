@@ -35,22 +35,19 @@ void Disk::readRequest(int diskNumber, std::string fileName, int pid){
 
 int Disk::completeRequest(int diskNumber){
   //find disk 
-  for(auto& disk: disks){
-    if(disk.diskNum == diskNumber){
-      //complete request  
-      int pid = disk.currentRead.PID; //save the pid of the process request 
-      //set the currentRead to next process to be served FIFO 
-      if(!disk.filesToRead.empty()){ //check not empty
-        disk.currentRead = disk.filesToRead.front();
-        disk.filesToRead.pop();
-      }
-      else{
-        disk.currentRead = FileReadRequest(); //set current read to default
-      }
-      return pid;
+  if(diskExist(diskNumber)){
+    int pid = disks[diskNumber].currentRead.PID;
+    if(!disks[diskNumber].filesToRead.empty()){
+      disks[diskNumber].filesToRead.front();
+      disks[diskNumber].filesToRead.pop();
     }
+    else{
+      disks[diskNumber].currentRead =  FileReadRequest();
+    }
+    return pid;
   }
   return 0;
+
 }
 
 FileReadRequest Disk::getDiskRequest(int diskNumber){

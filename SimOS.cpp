@@ -291,7 +291,8 @@
     //remove from ready queue if it's a child and in the ready queue
     int index = -1; //index to erase at
  
-    for(int i = readyQueue.size()-1; i >= 0; i--){
+    for(int i = readyQueue.size() -1; i >= 0; i--){
+      //std::cout << "read queie i: " << readyQueue[i].getPID() << " i: " << i << "\n";
       if(readyQueue[i].getPID() == childProcess.getPID()){
         index = i;
       }
