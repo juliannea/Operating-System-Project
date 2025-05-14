@@ -12,22 +12,17 @@ Disk::Disk(int numOfDisks){
 }
 
 void Disk::readRequest(int diskNumber, std::string fileName, int pid){
-  for(auto& disk: disks){
-    if(disk.diskNum ==  diskNumber){ //find the nth disk      
-      //add the files read request to I/O queue or currentRead
-      FileReadRequest file{
-        pid,
-        fileName
-      };
-
-      if(disk.currentRead.PID == 0){ //currently not reading
-        disk.currentRead = file;
-      }
-      else{
-        disk.filesToRead.push(file);
-      }
-      return;
-    
+  if(pid > 1 && diskExist(diskNumber)){
+    FileReadRequest file{
+      pid,
+      fileName
+    };
+    if(disks[diskNumber].currentRead.PID == 0) {
+      //currently not reading
+      disks[diskNumber].currentRead = file;
+    }
+    else{
+      disks[diskNumber].filesToRead.push(file); //add to a
     }
   }
   
