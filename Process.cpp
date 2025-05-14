@@ -18,10 +18,6 @@ Process::Process(int pid, int priority, unsigned long long size, int parentPID){
 
 }
 
-void Process::addChild(Process childProcess){
-  children.push_back(childProcess);
-}
-
 //setters
 void Process::setPID(int pid){
   pid_ = pid;
@@ -61,8 +57,4 @@ int Process::getParentPID() const{
   return parentPID_;
 }
 
-std::vector<Process> Process::getChildren() const
-{
-  return children;
-}
 

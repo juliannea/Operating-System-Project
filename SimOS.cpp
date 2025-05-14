@@ -83,8 +83,7 @@
     readyQueue.push_back(childProcess);
     sort();
 
-    //add child process to parents childPIDs queue
-    CPU_.addChild(childProcess);
+    
 
     return true;
   }
@@ -92,16 +91,11 @@
   void SimOS::SimExit(){
     if(CPU_.getPID() > 1){ //check not the OS process 
       Process temp = CPU_; 
-      RAM_.removeMemoryItem(temp.getPID()); //release memory used by this process immediately 
 
-      //terminate all its descendants as well, remove all its children from memory and the ready queue
-      for(int i = readyQueue.size() - 1; i >= 0; i--){
-        if(readyQueue[i].getParentPID() == temp.getPID()){ //found a descendant
-          RAM_.removeMemoryItem(readyQueue[i].getPID()); //remove child process from memory 
-          readyQueue.erase(readyQueue.begin() + i); //remove child process from ready queue
-        }
-      }    
-      yieldCPU(); //exit process currently using CPU 
+      terminate(CPU_); //first terminates all it's children, then terminates process in CPU,
+
+      
+      yieldCPU(); //exit process after releasing all its resources,  
       
       //determine if becomes zombie process 
       int parentPID = temp.getParentPID(); //get the parent PID
@@ -127,7 +121,8 @@
         else{ //terminates and becomes a zombie process
           zombieProcesses.push_back(temp);
         }
-      }     
+      } 
+         
     }
   }
 
@@ -156,7 +151,7 @@
       if(hasZombie){
         //zombie child disappears 
         zombieProcesses.erase(zombieProcesses.begin() + zombieIndex);
-        std::cout << "HAS ZOMBIE\n" << "\n";
+        //std::cout << "HAS ZOMBIE\n" << "\n";
         //process continues running
       }
       else{
@@ -175,7 +170,8 @@
       hardDisk_.readRequest(diskNumber, fileName, CPU_.getPID());
       //the process issuing the disk read request stops using (yields) the CPU, 
       //first move the process to the I/O queue 
-      inputOutputQueue.push_back(CPU_);
+      
+      inputOutputQueue.push_back({CPU_, diskNumber});
       yieldCPU();
     }
 
@@ -189,9 +185,9 @@
         //the served process should return to the ready-queue or start using the CPU 
         //find the process in the I/O queue 
         for(int i = 0; i < inputOutputQueue.size(); i++){
-          if(inputOutputQueue[i].getPID() == pid){
+          if(inputOutputQueue[i].first.getPID() == pid){
           
-            processPlacement(inputOutputQueue[i]);
+            processPlacement(inputOutputQueue[i].first);
 
             inputOutputQueue.erase(inputOutputQueue.begin() + i);
             return;
@@ -205,14 +201,7 @@
   int SimOS::GetCPU(){
     return CPU_.getPID();
   }
-
-  void SimOS::setReadyQueuePIDs(){
-    readyQueuePIDs.clear();
-    for(const auto& process : readyQueue){
-      readyQueuePIDs.push_back(process.getPID());
-    }
-  }
-  
+ 
   std::vector<int> SimOS::GetReadyQueue(){
     setReadyQueuePIDs();
     return readyQueuePIDs;
@@ -231,7 +220,12 @@
     return hardDisk_.getDiskQueue(diskNumber);
   }
 
-
+  void SimOS::setReadyQueuePIDs(){
+    readyQueuePIDs.clear();
+    for(const auto& process : readyQueue){
+      readyQueuePIDs.push_back(process.getPID());
+    }
+  }
 
   void SimOS::sort(){
     for(int i = 1; i < readyQueue.size(); i++){
@@ -277,6 +271,57 @@
     sort();
   }
 
+  void SimOS::terminate(Process childProcess){
+    //std::cout << "CURRENT CHILD: " << childProcess.getPID() << "\n\n";
+    //check if has child process 
+    for(int i = readyQueue.size() - 1; i >= 0; i--){
+      //check if child process has it's own child process and terminate that as well
+      //std::cout << "CHILD I: " << readyQueue[i].getPID()  << "CHILD I PARENT: " << readyQueue[i].getParentPID()<< "\n";
+      if(readyQueue[i].getParentPID() == childProcess.getPID()){ //found a descendant
+        //std::cout << "FOUND CHILD: " << readyQueue[i].getPID() << "\n";
+        terminate(readyQueue[i]);
+      }
+    } 
+    //std::cout << "CHILD TERMINATION DONE\n";
+   
+    //remove child process from memory
+    RAM_.removeMemoryItem(childProcess.getPID());
+    //std::cout << "MEMORY REMOVAL SUCESS\n";
+    
+    //remove from ready queue if it's a child and in the ready queue
+    int index = -1; //index to erase at
+ 
+    for(int i = readyQueue.size()-1; i >= 0; i--){
+      if(readyQueue[i].getPID() == childProcess.getPID()){
+        index = i;
+      }
+    }
+    if (index >=0){
+      readyQueue.erase(readyQueue.begin() + index);
+    }
+  
+    //std::cout << "REMOVE FROM READY \n";
+
+
+    //remove child from I/O queue 
+
+    
+    //remove child from wait if there 
+    if(!waitingProcesses.empty()){
+
+    
+      index = -1;
+      for(int i = inputOutputQueue.size()-1; i >= 0; i--){
+        if(inputOutputQueue[i].first.getPID() == childProcess.getPID()){
+          index = i;
+        }
+      }
+      if(index >= 0){
+        inputOutputQueue.erase(inputOutputQueue.begin() + index);
+      }
+    }
+  
+  }
   //getters
   int SimOS::getProcessRunningPriority() const{
     return CPU_.getPriority();
@@ -299,13 +344,13 @@
     std::cout << " Size: " << CPU_.getSize();
     std::cout << " Parent PID: " << CPU_.getParentPID() << "\n \n";
     std::cout <<"Children if have any: \n";
-    int i = 0;
-    for (const auto& process : CPU_.getChildren()) {
-      std::cout << "Index: " << i << ", PID: " <<  process.getPID() << std::dec
-                << " priority: " << process.getPriority()
-              
-                << " parent PID: "<< process.getParentPID() <<std::endl;
-      i++;
+    
+    for (int i = 0; i < readyQueue.size(); i++) {
+      if(readyQueue[i].getParentPID() == CPU_.getPID()){
+        std::cout << " PID: " <<  readyQueue[i].getPID()
+                << " priority: " << readyQueue[i].getPriority()
+                << " parent PID: "<< readyQueue[i].getParentPID() <<std::endl;
+      }
     }
     std::cout << "\n\n";
   }
@@ -351,9 +396,10 @@
     std::cout << "Displaying I/O Queue\n";
     int i = 0;
     for (const auto& process : inputOutputQueue) {
-      std::cout << "Index: " << i << ", PID: " << std::hex <<  process.getPID() << std::dec
-                << " priority: " << process.getPriority()
-                <<  " parent PID: " << process.getParentPID() << std::endl;
+      std::cout << "Index: " << i << ", PID: " << std::hex <<  process.first.getPID() << std::dec
+                << " priority: " << process.first.getPriority()
+                <<  " parent PID: " << process.first.getParentPID() 
+                <<" disk reading: " << process.second << std::endl;
       i++;
     }
     std::cout << "\n\n";

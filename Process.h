@@ -14,7 +14,7 @@ class Process{
     */
     Process(int pid = -1, int priority = 0, unsigned long long size = 0, int parentPID = -1);
 
-    void addChild(Process childProcess);
+    
     //setters
     void setPID(int pid);
 
@@ -34,13 +34,13 @@ class Process{
     int getParentPID() const;
 
 
-    std::vector<Process> getChildren() const;
+    
 
   private:
     int pid_;
     int priority_;
     unsigned long long size_;
     int parentPID_ = -1;
-    std::vector<Process> children;
+ 
    
 };

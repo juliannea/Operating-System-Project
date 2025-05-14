@@ -30,6 +30,9 @@ bool Memory::canAdd(unsigned long long processSize){
 
 //Removes specified process from RAM memory 
 void Memory::removeMemoryItem(int pid){
+  if(pid <= 1){
+    return;
+  }
   //find index of memory item with the PID 
   int freeIndex;
   for(int i = 0; i < memoryBlocks_.size(); i++){
@@ -125,7 +128,7 @@ void Memory::displayMemoryBlocks(){
   std::cout <<"Displaying Memory Blocks: \n";
   int i = 0;
   for (const auto& block : memoryBlocks_) {
-    std::cout << "index: " << i << ", Address: 0x" << block.itemAddress << std::dec
+    std::cout << "index: " << i << ", Address: 0x" << block.itemAddress
               << ", Size: " << block.itemSize
               << ", PID: " << block.PID << "\n";
     i++;

@@ -56,6 +56,8 @@ class SimOS{
     void yieldCPU();
 
     void processPlacement(Process newProcess);
+
+    void terminate(Process childProcess);
     //getters 
     int getProcessRunningPriority() const;
 
@@ -88,7 +90,7 @@ class SimOS{
       std::vector<int> readyQueuePIDs;
       std::vector<Process> waitingProcesses;
       std::vector<Process> zombieProcesses;
-      std::vector<Process> inputOutputQueue;
+      std::vector<std::pair<Process, int> >inputOutputQueue; //pair is set as {Process, Disknumber its using}
 
       Process CPU_ = Process(0,0,0,0);  //process currently using CPU 
       Memory RAM_; //represents RAM
