@@ -33,7 +33,7 @@ int Disk::completeRequest(int diskNumber){
   if(diskExist(diskNumber)){
     int pid = disks[diskNumber].currentRead.PID;
     if(!disks[diskNumber].filesToRead.empty()){
-      disks[diskNumber].filesToRead.front();
+      disks[diskNumber].currentRead = disks[diskNumber].filesToRead.front();
       disks[diskNumber].filesToRead.pop();
     }
     else{
@@ -61,6 +61,45 @@ bool Disk::diskExist(int n ){
   return true;
 }
 
+void Disk::terminate(int pid, int diskNumber){
+  if(!diskExist(diskNumber)){
+    return; 
+  }
+  std::queue<FileReadRequest> temp;
+
+  //case process we're deleting is the current read
+  if(disks[diskNumber].currentRead.PID == pid){
+    //std::cout << "DISK T Case 1" << disks[diskNumber].currentRead.PID << "\n";
+    //remove from current read and replace current read with next one in the q
+    if(!disks[diskNumber].filesToRead.empty()){
+      //if q not empty replace with front of q 
+      disks[diskNumber].currentRead = disks[diskNumber].filesToRead.front();
+      disks[diskNumber].filesToRead.pop();
+    }
+    else{
+      disks[diskNumber].currentRead =  FileReadRequest();
+    }
+  }
+  else{
+    //not the current read
+    while(!disks[diskNumber].filesToRead.empty()){
+      int current = disks[diskNumber].filesToRead.front().PID; //current PID of process in q we're looking at 
+      if(current != pid){
+        temp.push(disks[diskNumber].filesToRead.front());
+      }
+      disks[diskNumber].filesToRead.pop();
+    }
+
+    disks[diskNumber].filesToRead = temp;
+    if(!temp.empty()){
+      disks[diskNumber].currentRead = disks[diskNumber].filesToRead.front();
+      disks[diskNumber].filesToRead.pop();
+      
+    }
+  }
+  
+}
+
 std::queue<FileReadRequest> Disk::getDiskQueue(int diskNumber){
   for(const auto& disk: disks){
     if(disk.diskNum == diskNumber){
@@ -86,15 +125,15 @@ void Disk::displayDisks() const{
         std::cout << "  No read requests.\n";
     } else {
       std::queue<FileReadRequest> temp = disk.filesToRead;
-      std::cout << "  read requests:\n";
+      std::cout << "read requests:\n";
 
         while(!temp.empty()){
           std::cout << "  PID " << temp.front().PID
                       << " requested file: " << temp.front().fileName << "\n";
           temp.pop();
         }
-       
     }
+    std::cout << "\n";
 
     
   }

@@ -31,6 +31,8 @@ class Disk{
 
   bool diskExist(int n);
 
+  void terminate(int pid, int diskNumber);
+
   void displayDisks() const;
 
 

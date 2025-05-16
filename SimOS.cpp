@@ -272,27 +272,31 @@
   }
 
   void SimOS::terminate(Process childProcess){
-    //std::cout << "CURRENT CHILD: " << childProcess.getPID() << "\n\n";
-    //check if has child process 
+  
+    //check if has child process in ready q
     for(int i = readyQueue.size() - 1; i >= 0; i--){
       //check if child process has it's own child process and terminate that as well
-      //std::cout << "CHILD I: " << readyQueue[i].getPID()  << "CHILD I PARENT: " << readyQueue[i].getParentPID()<< "\n";
       if(readyQueue[i].getParentPID() == childProcess.getPID()){ //found a descendant
-        //std::cout << "FOUND CHILD: " << readyQueue[i].getPID() << "\n";
         terminate(readyQueue[i]);
       }
     } 
-    //std::cout << "CHILD TERMINATION DONE\n";
-   
+
+    //check if any children in I/O q
+    for(int i  = inputOutputQueue.size() -1; i >= 0; i--){
+      //check if parent has child in I/O q, we can only call exist when parent is out of I/O q
+      if(inputOutputQueue[i].first.getParentPID() == childProcess.getPID()){
+        hardDisk_.terminate(inputOutputQueue[i].first.getPID(), inputOutputQueue[i].second); // PID of process, and disk number it's in
+        terminate(inputOutputQueue[i].first);
+        
+        inputOutputQueue.erase(inputOutputQueue.begin() + i);
+      }
+    }
+  
     //remove child process from memory
     RAM_.removeMemoryItem(childProcess.getPID());
-    //std::cout << "MEMORY REMOVAL SUCESS\n";
-    
     //remove from ready queue if it's a child and in the ready queue
     int index = -1; //index to erase at
- 
     for(int i = readyQueue.size() -1; i >= 0; i--){
-      //std::cout << "read queie i: " << readyQueue[i].getPID() << " i: " << i << "\n";
       if(readyQueue[i].getPID() == childProcess.getPID()){
         index = i;
       }
@@ -300,29 +304,19 @@
     if (index >=0){
       readyQueue.erase(readyQueue.begin() + index);
     }
-  
-    //std::cout << "REMOVE FROM READY \n";
-
-
-    //remove child from I/O queue 
-
-    
     //remove child from wait if there 
-    if(!waitingProcesses.empty()){
 
-    
-      index = -1;
-      for(int i = inputOutputQueue.size()-1; i >= 0; i--){
-        if(inputOutputQueue[i].first.getPID() == childProcess.getPID()){
-          index = i;
-        }
-      }
-      if(index >= 0){
-        inputOutputQueue.erase(inputOutputQueue.begin() + index);
+    index = -1;
+    for(int i = waitingProcesses.size()-1; i >= 0; i--){
+      if(waitingProcesses[i].getPID() == childProcess.getPID()){
+        index = i;
       }
     }
-  
+    if(index >= 0){
+      waitingProcesses.erase(waitingProcesses.begin() + 1);
+    }
   }
+   
   //getters
   int SimOS::getProcessRunningPriority() const{
     return CPU_.getPriority();
@@ -397,7 +391,7 @@
     std::cout << "Displaying I/O Queue\n";
     int i = 0;
     for (const auto& process : inputOutputQueue) {
-      std::cout << "Index: " << i << ", PID: " << std::hex <<  process.first.getPID() << std::dec
+      std::cout << "Index: " << i << ", PID: " <<  process.first.getPID() << std::dec
                 << " priority: " << process.first.getPriority()
                 <<  " parent PID: " << process.first.getParentPID() 
                 <<" disk reading: " << process.second << std::endl;
