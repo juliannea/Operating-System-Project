@@ -1,7 +1,7 @@
 //Julianne Aguilar 
+#pragma once
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
 constexpr int NO_PROCESS{-1}; //used to mark memory block free
 
@@ -13,7 +13,7 @@ struct MemoryItem{
 
 using MemoryUse = std::vector<MemoryItem>; //processes appear in the same order they appear in memory (low address to high)
 
-#pragma once
+
 class Memory{
   public:
     Memory();
