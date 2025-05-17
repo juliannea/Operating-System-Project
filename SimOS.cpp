@@ -211,6 +211,10 @@
     for(const auto& process : readyQueue){
       readyQueuePIDs.push_back(process.getPID());
     }
+    //add OS process if not in the CPU 
+    if(CPU_.getPID() > 1){
+      readyQueuePIDs.push_back(1); //OS process 
+    }
   }
 
   void SimOS::sort(){
