@@ -10,7 +10,6 @@
 class SimOS{
   public:
 
-
     SimOS( int numberOfDisks, unsigned long long amountOfRAM, unsigned long long sizeOfOS);
 
     bool NewProcess( unsigned long long size, int priority );
@@ -52,7 +51,7 @@ class SimOS{
     void setProcessRunning(Process processRunning);
 
     //displays for testing 
-    const void displayMemoryBlocks();
+    void displayMemoryBlocks();
 
     void displayRunningProcess() const;
 
@@ -85,4 +84,3 @@ class SimOS{
       Disk hardDisk_;
 
 };
-

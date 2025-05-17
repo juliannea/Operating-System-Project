@@ -308,18 +308,6 @@
     if (index >=0){
       readyQueue.erase(readyQueue.begin() + index);
     }
-    //remove child from wait if there 
-    /*
-    index = -1;
-    for(int i = waitingProcesses.size()-1; i >= 0; i--){
-      if(waitingProcesses[i].getPID() == childProcess.getPID()){
-        index = i;
-      }
-    }
-    if(index >= 0){
-      waitingProcesses.erase(waitingProcesses.begin() + index);
-    }
-    */
   }
    
   //getters
@@ -332,7 +320,7 @@
   }
 
   //Displays for testing
-  const void SimOS::displayMemoryBlocks(){
+  void SimOS::displayMemoryBlocks(){
     RAM_.displayMemoryBlocks();
   }
 
