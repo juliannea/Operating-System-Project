@@ -106,7 +106,7 @@ bool Memory::addToMemory(MemoryItem memoryBlock){
 void Memory::setProcessesInMem(){
   processesInMem.clear();
   for (const auto& block : memoryBlocks_){
-    if(block.PID != NO_PROCESS and block.PID != 1){
+    if(block.PID != NO_PROCESS){
       processesInMem.push_back(block);
 
     }
