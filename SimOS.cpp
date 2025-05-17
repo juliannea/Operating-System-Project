@@ -122,28 +122,17 @@
   }
 
   void SimOS::SimWait(){
-    //check if has a child in queue, if no child then no wait 
-    /*
-    bool hasChild = false;
-    for (const auto& process: readyQueue){
-      if(process.getParentPID() == CPU_.getPID()){
-        hasChild = true;
-      }
-    }
-    */
-
-    bool hasZombie = false;
-    int zombieIndex;
-
+    if(CPU_.getPID() > 1){ //check not OS process 
+      bool hasZombie = false;
+      int zombieIndex;
+  
       //check if has zombie process
       for(int i = 0; i < zombieProcesses.size(); i++){
         if(zombieProcesses[i].getParentPID() == CPU_.getPID()){
-         hasZombie = true;
-         zombieIndex = i;
+          hasZombie = true;
+          zombieIndex = i;
         }
       }
-
-    if(CPU_.getPID() > 1){ //check not OS process 
    
       if(hasZombie){
         //zombie child disappears 
@@ -311,7 +300,12 @@
       readyQueue.erase(readyQueue.begin() + index);
     }
   }
-   
+
+  int SimOS::getNumDisk()
+  {
+    return numberOfDisks_;
+  }
+
   //getters
   int SimOS::getProcessRunningPriority() const{
     return CPU_.getPriority();

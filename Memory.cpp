@@ -106,7 +106,7 @@ bool Memory::addToMemory(MemoryItem memoryBlock){
 void Memory::setProcessesInMem(){
   processesInMem.clear();
   for (const auto& block : memoryBlocks_){
-    if(block.PID != NO_PROCESS){
+    if(block.PID != NO_PROCESS and block.PID != 1){
       processesInMem.push_back(block);
 
     }
@@ -128,7 +128,7 @@ void Memory::displayMemoryBlocks(){
   std::cout <<"Displaying Memory Blocks: \n";
   int i = 0;
   for (const auto& block : memoryBlocks_) {
-    std::cout << "index: " << i << ", Address: 0x" << block.itemAddress
+    std::cout << "index: " << i << ", Address: " << block.itemAddress
               << ", Size: " << block.itemSize
               << ", PID: " << block.PID << "\n";
     i++;

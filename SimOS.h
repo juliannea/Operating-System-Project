@@ -45,7 +45,9 @@ class SimOS{
     void processPlacement(Process newProcess);
 
     void terminate(Process childProcess);
-    //getters 
+
+    int getNumDisk();
+    
     int getProcessRunningPriority() const;
 
     void setProcessRunning(Process processRunning);
