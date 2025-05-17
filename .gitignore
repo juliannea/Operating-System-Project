@@ -1,7 +1,0 @@
-# Ignore compiled files 
-*.class
-*.exe
-*.o
-/main.cpp
-/main
-.vscode/
