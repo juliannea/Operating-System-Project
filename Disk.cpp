@@ -55,7 +55,7 @@ FileReadRequest Disk::getDiskRequest(int diskNumber){
 }
 
 bool Disk::diskExist(int n ){
-  if (n > numOfDisks_ -1){
+  if (n > numOfDisks_ -1 || n < 0){
     return false;
   }
   return true;
