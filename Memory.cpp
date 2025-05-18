@@ -30,6 +30,9 @@ bool Memory::canAdd(unsigned long long processSize){
 
 //Removes specified process from RAM memory 
 void Memory::removeMemoryItem(int pid){
+  //std::cout << "REMOVING: " << pid << "\n";
+  //displayMemoryBlocks();
+
   if(pid <= 1){
     return;
   }
@@ -42,7 +45,10 @@ void Memory::removeMemoryItem(int pid){
   }
 
   memoryBlocks_[freeIndex].PID = NO_PROCESS; //means free 
- 
+  //displayMemoryBlocks();
+  //std::cout << "FREE INDEX: " << freeIndex << "\n";
+  //std::cout << "vector size: " << memoryBlocks_.size() << "\n";
+  //std::cout << "freeIndex + 1: " << memoryBlocks_[freeIndex + 1].itemSize << "\n";
  
   //if both before and after index combine
   if(memoryBlocks_[freeIndex-1].PID ==  NO_PROCESS && memoryBlocks_[freeIndex + 1].PID == NO_PROCESS){
@@ -52,16 +58,19 @@ void Memory::removeMemoryItem(int pid){
     //the one after
     memoryBlocks_[freeIndex - 1].itemSize += memoryBlocks_[freeIndex].itemSize;
     memoryBlocks_.erase(memoryBlocks_.begin() + freeIndex); 
+    //std::cout << "case 1\n";
   }
   else if(memoryBlocks_[freeIndex-1].PID ==  NO_PROCESS){ //if prev index has free memory combine
     memoryBlocks_[freeIndex - 1].itemSize += memoryBlocks_[freeIndex].itemSize;
     memoryBlocks_.erase(memoryBlocks_.begin() + freeIndex); 
+    //std::cout << "case 2\n";
   }
-  else if(memoryBlocks_[freeIndex + 1].PID == NO_PROCESS){ //if after index has free memory combine
+  else if(freeIndex < memoryBlocks_.size()-1 and memoryBlocks_[freeIndex + 1].PID == NO_PROCESS){ //if after index has free memory combine
   
     memoryBlocks_[freeIndex + 1].itemSize += memoryBlocks_[freeIndex].itemSize;
     memoryBlocks_[freeIndex + 1].itemAddress = memoryBlocks_[freeIndex].itemAddress;
-    memoryBlocks_.erase(memoryBlocks_.begin() + freeIndex); 
+    memoryBlocks_.erase(memoryBlocks_.begin() + freeIndex);
+    //std::cout << "case3 \n"; 
   }
   
 }
@@ -126,6 +135,7 @@ MemoryUse Memory::getProcessesInMem()
 // Displays for testing 
 void Memory::displayMemoryBlocks(){
   std::cout <<"Displaying Memory Blocks: \n";
+  std::cout << "SIZE OF MEMORY BLOCKS VECTOR: " << memoryBlocks_.size() << "\n";
   int i = 0;
   for (const auto& block : memoryBlocks_) {
     std::cout << "index: " << i << ", Address: " << block.itemAddress
